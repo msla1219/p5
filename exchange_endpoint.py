@@ -20,12 +20,6 @@ from algosdk import mnemonic
 from algosdk.future import transaction
 from algosdk import account
 
-from web3 import Web3
-from web3.middleware import geth_poa_middleware
-from web3.exceptions import TransactionNotFound
-import json
-from hexbytes import HexBytes
-
 # TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
@@ -35,10 +29,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
-
-
-eth_pk = None
-algo_pk = None
 
 """ Pre-defined methods (do not need to change) """
 
@@ -295,7 +285,41 @@ def execute_txes(txes):
     pass
 
 """ End of Helper methods"""
+  
+@app.route('/address', methods=['POST'])
+def address():
+    if request.method == "POST":
+        content = request.get_json(silent=True)
+        if 'platform' not in content.keys():
+            print( f"Error: no platform provided" )
+            return jsonify( "Error: no platform provided" )
+        if not content['platform'] in ["Ethereum", "Algorand"]:
+            print( f"Error: {content['platform']} is an invalid platform" )
+            return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
+        
+        if content['platform'] == "Ethereum":
+		try: 
+			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 
+			w3 = Web3()
+			w3.eth.account.enable_unaudited_hdwallet_features()
+			acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+			eth_pk = acct._address
+
+			return jsonify(eth_pk)
+
+		except Exception as e:
+			print("Couldn't get Ethereum server pk: ", eth_pk)
+			print(e)
+                
+        if content['platform'] == "Algorand":
+            #Your code here
+            
+            // 필요시 니모믹 변경    
+            mnemonic_secret = "soft quiz moral bread repeat embark shed steak chalk joy fetch pilot shift floor identify poverty index yard cannon divorce fatal angry mistake abandon voyage"
+            algo_pk = mnemonic.to_public_key(mnemonic_secret)
+
+            return jsonify( algo_pk )
 
 @app.route('/trade', methods=['POST'])
 def trade():
