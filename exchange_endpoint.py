@@ -8,6 +8,7 @@ import algosdk
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import load_only
+from sqlalchemy.sql import text
 from datetime import datetime
 import math
 import sys
