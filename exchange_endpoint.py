@@ -36,6 +36,10 @@ DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
 
+
+eth_pk = None
+algo_pk = None
+
 """ Pre-defined methods (do not need to change) """
 
 @app.before_request
@@ -304,20 +308,14 @@ def address():
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
         
         if content['platform'] == "Ethereum":
-		try: 
-			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
-
+		if eth_pk is None:
 			w3 = Web3()
 			w3.eth.account.enable_unaudited_hdwallet_features()
-			acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+			acct,mnemonic_secret = w3.eth.account.create_with_mnemonic()
 			eth_pk = acct._address
 
-			return jsonify(eth_pk)
-
-		except Exception as e:
-			print("Couldn't get Ethereum server pk: ", eth_pk)
-			print(e)
-                
+		return jsonify(eth_pk)
+		
         if content['platform'] == "Algorand":
             #Your code here
             
