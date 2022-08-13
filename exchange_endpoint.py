@@ -308,22 +308,15 @@ def address():
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
         
         if content['platform'] == "Ethereum":
-		if eth_pk is None:
-			w3 = Web3()
-			w3.eth.account.enable_unaudited_hdwallet_features()
-			acct,mnemonic_secret = w3.eth.account.create_with_mnemonic()
-			eth_pk = acct._address
+		
 
 		return jsonify(eth_pk)
 		
         if content['platform'] == "Algorand":
             #Your code here
             
-            // 필요시 니모믹 변경    
-            mnemonic_secret = "soft quiz moral bread repeat embark shed steak chalk joy fetch pilot shift floor identify poverty index yard cannon divorce fatal angry mistake abandon voyage"
-            algo_pk = mnemonic.to_public_key(mnemonic_secret)
 
-            return jsonify( algo_pk )
+		return jsonify( algo_pk )
 
 @app.route('/trade', methods=['POST'])
 def trade():
