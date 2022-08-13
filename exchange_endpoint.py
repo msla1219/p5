@@ -36,6 +36,9 @@ DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
 
+algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
+eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
+	
 """ Pre-defined methods (do not need to change) """
 
 @app.before_request
@@ -98,7 +101,6 @@ def connect_to_blockchains():
 """ End of pre-defined methods """
         
 """ Helper Methods (skeleton code for you to implement) """
-
 def verify(content):
 
     try:
@@ -225,7 +227,6 @@ def process_order(content):
         g.session.commit()
 
         
-
 def log_message(d):
 
     # Takes input dictionary d and writes it to the Log table
@@ -243,6 +244,7 @@ def log_message(d):
         print(traceback.format_exc())
         print(e)
 
+
 def IsPaidOrder(contect):
 	
     try:
@@ -259,12 +261,14 @@ def IsPaidOrder(contect):
 			return false
 		
         if content['payload']['platform'] == 'Algorand':
-            algo_sig = content['sig']
-            algo_pk = content['payload']['sender_pk']
-            payload = json.dumps(content['payload'])
+	''' to be updated		
+		algo_sig = content['sig']
+            	algo_pk = content['payload']['sender_pk']
+            	payload = json.dumps(content['payload'])
             
-            result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
-            return result           # bool value 
+            	result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
+	'''
+		return true           # bool value 
 
 	return false			# neither platform is 'Ethereum' nor 'Algorand'
 
@@ -276,19 +280,36 @@ def IsPaidOrder(contect):
 	
 def get_algo_keys():
     
-    # TODO: Generate or read (using the mnemonic secret) 
-    # the algorand public/private keys
-    
-    return algo_sk, algo_pk
+	# TODO: Generate or read (using the mnemonic secret) 
+	# the algorand public/private keys
+
+	# 이게 문맥상 맞나? exchange server의 SK, PK
+	try:
+		sender_sk = mnemonic.to_private_key(algo_mnemonic)
+		sender_pk = mnemonic.to_public_key(algo_mnemonic)
+	except Exception as e:
+		print( "Error: couldn't read sender address" )
+		print( e )
+		return "", ""
+
+	return sender_sk, sender_pk
+
+
+	return algo_sk, algo_pk
 
 
 def get_eth_keys(filename = "eth_mnemonic.txt"):
-    w3 = Web3()
-    
-    # TODO: Generate or read (using the mnemonic secret) 
-    # the ethereum public/private keys
+	# TODO: Generate or read (using the mnemonic secret) 
+	# the ethereum public/private keys
 
-    return eth_sk, eth_pk
+	w3 = Web3()
+
+	w3.eth.account.enable_unaudited_hdwallet_features()
+	acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+	eth_pk = acct._address
+	eth_sk = acct._private_key.hex() 	#private key is of type HexBytes which is not JSON serializable, adding .hex() converts it to a string
+
+	return eth_sk, eth_pk
   
 def fill_order(order, txes=[]):
     # TODO: 
@@ -337,9 +358,8 @@ def address():
         
         if content['platform'] == "Ethereum":
 		try:
-			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 
-			w3 = connect_to_eth()
+			w3 = Web3()
 			w3.eth.account.enable_unaudited_hdwallet_features()
 			acct = w3.eth.account.from_mnemonic(eth_mnemonic)
 			eth_pk = acct._address
@@ -353,7 +373,7 @@ def address():
         if content['platform'] == "Algorand":
             #Your code here
 		try:
-			algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
+
 			algo_pk = mnemonic.to_public_key(algo_mnemonic)
 
 			return jsonify(algo_pk)
