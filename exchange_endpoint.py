@@ -134,6 +134,33 @@ def verify(content):
         print(traceback.format_exc())
         print(e)
 
+
+def insert_order(content):
+
+    #1. Insert new order
+    order_obj = Order(sender_pk=content['payload']['sender_pk'],
+                      receiver_pk=content['payload']['receiver_pk'], 
+                      buy_currency=content['payload']['buy_currency'], 
+                      sell_currency=content['payload']['sell_currency'], 
+                      buy_amount=content['payload']['buy_amount'], 
+                      sell_amount=content['payload']['sell_amount'], 
+                      exchange_rate=(content['payload']['buy_amount']/content['payload']['sell_amount']),
+                      signature=content['sig'],
+		      tx_id=content['payload']['tx_id']
+		     )
+
+    g.session.add(order_obj)
+    g.session.commit()
+
+    # check up if it works well and get the order id
+    # results = g.session.execute("select distinct id from orders where " + 
+                            " sender_pk = '" + str(order_obj.sender_pk) + "'" +
+                            " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
+
+    # order_id = results.first()['id']
+    # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
+
+	
 def process_order(content):
 
     #1. Insert new order
@@ -412,7 +439,7 @@ def trade():
 	# 1. Check the signature
         if verify(content) is True: 
 	        # 2. Add the order to the table
-		process_order(content)
+		insert_order(content)
         else:
 		log_message(content)
 
