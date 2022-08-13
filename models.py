@@ -18,6 +18,7 @@ class Order(Base):
     sell_currency = Column(Enum(*PLATFORMS))
     buy_amount = Column(Integer,default=0)
     sell_amount = Column(Integer,default=0)
+    exchange_rate = Column(Integer,default=0)
     signature = Column(String(256))
     timestamp = Column(DateTime,default=datetime.now()) #When was the order inserted into the database
     counterparty_id = Column(Integer,ForeignKey('orders.id')) #If the order was filled (or partially filled) the order_id of the order that acted as the counterparty
