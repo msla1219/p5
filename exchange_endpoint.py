@@ -298,20 +298,19 @@ def address():
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
         
         if content['platform'] == "Ethereum":
-        
-        	try: 
-                eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
+		try: 
+			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 
-                w3 = Web3()
-                w3.eth.account.enable_unaudited_hdwallet_features()
-                acct = w3.eth.account.from_mnemonic(eth_mnemonic)
-                eth_pk = acct._address
+			w3 = Web3()
+			w3.eth.account.enable_unaudited_hdwallet_features()
+			acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+			eth_pk = acct._address
 
-                return jsonify( eth_pk )
-        	
-            except Exception as e:
-		        print( "Couldn't get Ethereum server pk" )
-		        print( e )
+			return jsonify(eth_pk)
+
+		except Exception as e:
+			print("Couldn't get Ethereum server pk: ", eth_pk)
+			print(e)
                 
         if content['platform'] == "Algorand":
             #Your code here
