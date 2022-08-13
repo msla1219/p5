@@ -292,10 +292,19 @@ def address():
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
         
         if content['platform'] == "Ethereum":
-            #Your code here
+        
+            eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
+
+            w3 = Web3()
+            w3.eth.account.enable_unaudited_hdwallet_features()
+            acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+            eth_pk = acct._address
+
             return jsonify( eth_pk )
+        
         if content['platform'] == "Algorand":
             #Your code here
+
             return jsonify( algo_pk )
 
 @app.route('/trade', methods=['POST'])
