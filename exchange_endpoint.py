@@ -378,10 +378,36 @@ def trade():
 
 @app.route('/order_book')
 def order_book():
-    fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk", "sender_pk" ]
+	# fields = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk", "sender_pk" ]
     
-    # Same as before
-    pass
+	try:
+		results = g.session.execute("select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, signature, tx_id " + 
+		"from orders ")
 
+		result_list = list()
+		for row in results:
+			item = dict()
+			item['sender_pk'] = row['sender_pk']
+			item['receiver_pk'] = row['receiver_pk']
+			item['buy_currency'] = row['buy_currency']
+			item['sell_currency'] = row['sell_currency']
+			item['buy_amount'] = row['buy_amount']
+			item['sell_amount'] = row['sell_amount']
+			item['signature'] = row['signature']
+			item['tx_id'] = row['tx_id']
+
+			result_list.append(item)
+
+		result = dict()
+		result['data'] = result_list
+
+	        return jsonify(result)
+
+	except Exception as e:
+		import traceback
+		print(traceback.format_exc())
+		print(e)
+
+		
 if __name__ == '__main__':
     app.run(port='5002')
