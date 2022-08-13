@@ -87,6 +87,131 @@ def connect_to_blockchains():
         
 """ Helper Methods (skeleton code for you to implement) """
 
+def verify(content):
+
+    try:
+
+        if content['payload']['platform'] == 'Ethereum':
+            eth_sk = content['sig']
+            eth_pk = content['payload']['sender_pk']
+
+            payload = json.dumps(content['payload'])
+            eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
+            recovered_pk = eth_account.Account.recover_message(eth_encoded_msg, signature=eth_sk)
+
+            # Check if signature is valid
+            if recovered_pk == eth_pk:
+                result = True
+            else:
+                result = False
+
+            return result           # bool value
+
+        if content['payload']['platform'] == 'Algorand':
+            algo_sig = content['sig']
+            algo_pk = content['payload']['sender_pk']
+            payload = json.dumps(content['payload'])
+            
+            result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
+            return result           # bool value 
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+
+def process_order(content):
+
+    #1. Insert new order    
+    order_obj = Order(sender_pk=content['payload']['sender_pk'],
+                      receiver_pk=content['payload']['receiver_pk'], 
+                      buy_currency=content['payload']['buy_currency'], 
+                      sell_currency=content['payload']['sell_currency'], 
+                      buy_amount=content['payload']['buy_amount'], 
+                      sell_amount=content['payload']['sell_amount'], 
+                      exchange_rate=(content['payload']['buy_amount']/content['payload']['sell_amount']),
+                      signature=content['sig'])
+
+    g.session.add(order_obj)
+    g.session.commit()
+
+    # check up if it works well and get the order id
+    results = g.session.execute("select distinct id from orders where " + 
+                            " sender_pk = '" + str(order_obj.sender_pk) + "'" +
+                            " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
+
+    order_id = results.first()['id']
+    # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
+
+    # Point to modify!!!
+    
+    #2. Matching order
+    results = g.session.execute("select count(id) " + 
+                            " from orders where orders.filled is null " + 
+                            " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
+                            " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
+                            " and exchange_rate <= " + str(order_obj.sell_amount/order_obj.buy_amount))
+
+    if results.first()[0] == 0:
+        # print("::::no matching order::::")
+        return
+
+    results = g.session.execute("select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount " + 
+                            "from orders where orders.filled is null " + 
+                            " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
+                            " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
+                            " and exchange_rate <= " + str(order_obj.sell_amount/order_obj.buy_amount))
+
+    for row in results:
+        m_order_id = row['id']
+        m_sender_pk = row['sender_pk']
+        m_receiver_pk = row['receiver_pk'] 
+        m_buy_currency = row['buy_currency'] 
+        m_sell_currency = row['sell_currency'] 
+        m_buy_amount = row['buy_amount']
+        m_sell_amount = row['sell_amount']
+        # print(" matched at ID: ", m_order_id)
+        break
+
+    # print(" matching order: ", m_order_id, m_buy_currency, m_sell_currency, m_buy_amount, m_sell_amount)
+    # print(" order['sell_amount']/order['buy_amount']: ", order['sell_amount']/order['buy_amount'], ">=", "(buy_amount/sell_amount)", (m_buy_amount/m_sell_amount))
+
+    # update both the matching orders 
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = stmt.bindparams(the_id=order_id, id=m_order_id, curr_date=datetime.now())
+    g.session.execute(stmt)  # where session has already been defined
+
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
+    g.session.execute(stmt)  # where session has already been defined
+  
+    #3. Create derived order
+    if order_obj.buy_amount > m_sell_amount:
+        d_order_obj = Order(sender_pk=order_obj.sender_pk,
+                            receiver_pk=order_obj.receiver_pk, 
+                            buy_currency=order_obj.buy_currency, 
+                            sell_currency=order_obj.sell_currency, 
+                            buy_amount=order_obj.buy_amount - m_sell_amount, 
+                            sell_amount=order_obj.sell_amount - ((order_obj.sell_amount/order_obj.buy_amount) * m_sell_amount),
+                            exchange_rate = (order_obj.buy_amount - m_sell_amount)/(order_obj.sell_amount - (order_obj.sell_amount/order_obj.buy_amount * m_sell_amount)),
+                            creator_id=order_id)
+        g.session.add(d_order_obj)
+        g.session.commit()
+
+    elif order_obj.buy_amount < m_sell_amount:
+        d_order_obj = Order(  sender_pk=m_sender_pk,
+                            receiver_pk=m_receiver_pk, 
+                            buy_currency=m_buy_currency, 
+                            sell_currency=m_sell_currency, 
+                            buy_amount= m_buy_amount - (m_buy_amount/m_sell_amount) * order_obj.buy_amount, 
+                            sell_amount= m_sell_amount - order_obj.buy_amount,
+                            exchange_rate = (m_buy_amount - (m_buy_amount/m_sell_amount) * order_obj.buy_amount)/(m_sell_amount - order_obj.buy_amount),
+                            creator_id=m_order_id)
+        g.session.add(d_order_obj)
+        g.session.commit()
+
+        
+
 def log_message(d):
 
     # Takes input dictionary d and writes it to the Log table
@@ -200,8 +325,12 @@ def trade():
             print( json.dumps(content) )
             return jsonify( False )
         
-        # Your code here
-        
+        # Your code here        
+        if verify(content) is True: 
+            process_order(content)
+        else:
+            log_message(content)
+
         # 1. Check the signature
         
         # 2. Add the order to the table
