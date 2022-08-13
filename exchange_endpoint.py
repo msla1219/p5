@@ -87,12 +87,23 @@ def connect_to_blockchains():
         
 """ Helper Methods (skeleton code for you to implement) """
 
-def log_message(message_dict):
-    msg = json.dumps(message_dict)
+def log_message(d):
 
-    # TODO: Add message to the Log table
-    
-    return
+    # Takes input dictionary d and writes it to the Log table
+    payload = json.dumps(d['payload'])
+
+    try:
+        # Insert new log
+        log_obj = Log(message = json.dumps(d['payload']))
+
+        g.session.add(log_obj)
+        g.session.commit()
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+        
 
 def get_algo_keys():
     
