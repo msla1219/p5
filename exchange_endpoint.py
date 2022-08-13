@@ -272,7 +272,7 @@ def log_message(d):
         print(e)
 
 
-def IsPaidOrder(contect):
+def IsPaidOrder(content):
 	
     try:
 
@@ -288,14 +288,19 @@ def IsPaidOrder(contect):
 			return false
 		
         if content['payload']['platform'] == 'Algorand':
-	''' to be updated		
-		algo_sig = content['sig']
-            	algo_pk = content['payload']['sender_pk']
-            	payload = json.dumps(content['payload'])
-            
-            	result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
-	'''
-		return true           # bool value 
+
+		myindexer = connect_to_algo(connection_type='indexer')
+		result = myindexer.search_transactions(txid = content['payload']['tx_id'], txn_type="pay")
+
+		if (len(result) == 0):
+			return false
+
+		if(result[0]["transaction"]["snd"] == content['payload']['sender_pk'] && 
+		   result[0]["transaction"]["rcv"] == content['payload']['receiver_pk'] && 
+		   result[0]["transaction"]["amt"] == content['payload']['sell_amount']):
+			return true
+		else
+			return false 
 
 	return false			# neither platform is 'Ethereum' nor 'Algorand'
 
