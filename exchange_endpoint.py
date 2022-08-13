@@ -20,6 +20,12 @@ from algosdk import mnemonic
 from algosdk.future import transaction
 from algosdk import account
 
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+from web3.exceptions import TransactionNotFound
+import json
+from hexbytes import HexBytes
+
 # TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
