@@ -134,7 +134,7 @@ def verify(content):
 
 def process_order(content):
 
-    #1. Insert new order    
+    #1. Insert new order
     order_obj = Order(sender_pk=content['payload']['sender_pk'],
                       receiver_pk=content['payload']['receiver_pk'], 
                       buy_currency=content['payload']['buy_currency'], 
@@ -142,7 +142,9 @@ def process_order(content):
                       buy_amount=content['payload']['buy_amount'], 
                       sell_amount=content['payload']['sell_amount'], 
                       exchange_rate=(content['payload']['buy_amount']/content['payload']['sell_amount']),
-                      signature=content['sig'])
+                      signature=content['sig'],
+		      tx_id=content['payload']['tx_id']
+		     )
 
     g.session.add(order_obj)
     g.session.commit()
@@ -240,8 +242,38 @@ def log_message(d):
         import traceback
         print(traceback.format_exc())
         print(e)
-        
 
+def IsPaidOrder(contect):
+	
+    try:
+
+        if content['payload']['platform'] == 'Ethereum':
+		w3 = connect_to_eth()
+		tx = web3.eth.get_transaction(content['payload']['tx_id'])		
+
+		if(tx['from'] == content['payload']['sender_pk'] && 
+		   tx['to'] == content['payload']['receiver_pk'] && 
+		   tx['value'] == content['payload']['sell_amount']):
+			return true
+		else
+			return false
+		
+        if content['payload']['platform'] == 'Algorand':
+            algo_sig = content['sig']
+            algo_pk = content['payload']['sender_pk']
+            payload = json.dumps(content['payload'])
+            
+            result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
+            return result           # bool value 
+
+	return false			# neither platform is 'Ethereum' nor 'Algorand'
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+
+	
 def get_algo_keys():
     
     # TODO: Generate or read (using the mnemonic secret) 
@@ -307,7 +339,7 @@ def address():
 		try:
 			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 
-			w3 = Web3()
+			w3 = connect_to_eth()
 			w3.eth.account.enable_unaudited_hdwallet_features()
 			acct = w3.eth.account.from_mnemonic(eth_mnemonic)
 			eth_pk = acct._address
@@ -357,20 +389,18 @@ def trade():
             print( json.dumps(content) )
             return jsonify( False )
         
-        # Your code here        
+	# 1. Check the signature
         if verify(content) is True: 
-            process_order(content)
+	        # 2. Add the order to the table
+		process_order(content)
         else:
-            log_message(content)
+		log_message(content)
 
-        # 1. Check the signature
-        
-        # 2. Add the order to the table
-        
         # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
-
-        # 3b. Fill the order (as in Exchange Server II) if the order is valid
-        
+	if IsPaidOrder(contect) is True:
+		# 3b. Fill the order (as in Exchange Server II) if the order is valid
+        	pass
+	
         # 4. Execute the transactions
         
         # If all goes well, return jsonify(True). else return jsonify(False)
@@ -408,6 +438,5 @@ def order_book():
 		print(traceback.format_exc())
 		print(e)
 
-		
 if __name__ == '__main__':
     app.run(port='5002')
