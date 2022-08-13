@@ -14,6 +14,12 @@ import math
 import sys
 import traceback
 
+from algosdk.v2client import algod
+from algosdk.v2client import indexer
+from algosdk import mnemonic
+from algosdk.future import transaction
+from algosdk import account
+
 # TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
@@ -304,6 +310,10 @@ def address():
         
         if content['platform'] == "Algorand":
             #Your code here
+            
+            // 필요시 니모믹 변경    
+            mnemonic_secret = "soft quiz moral bread repeat embark shed steak chalk joy fetch pilot shift floor identify poverty index yard cannon divorce fatal angry mistake abandon voyage"
+            algo_pk = mnemonic.to_public_key(mnemonic_secret)
 
             return jsonify( algo_pk )
 
