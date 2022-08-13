@@ -449,7 +449,7 @@ def trade():
 		log_message(content)
 
         # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
-	if IsPaidOrder(contect) is True:
+	if IsPaidOrder(content) is True:
 		# 3b. Fill the order (as in Exchange Server II) if the order is valid
         	pass
 	
