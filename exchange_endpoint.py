@@ -298,7 +298,7 @@ def address():
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
         
         if content['platform'] == "Ethereum":
-		try: 
+		try:
 			eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 
 			w3 = Web3()
@@ -314,12 +314,15 @@ def address():
                 
         if content['platform'] == "Algorand":
             #Your code here
-            
-            // 필요시 니모믹 변경    
-            mnemonic_secret = "soft quiz moral bread repeat embark shed steak chalk joy fetch pilot shift floor identify poverty index yard cannon divorce fatal angry mistake abandon voyage"
-            algo_pk = mnemonic.to_public_key(mnemonic_secret)
+		try:
+			algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
+			algo_pk = mnemonic.to_public_key(algo_mnemonic)
 
-            return jsonify( algo_pk )
+			return jsonify(algo_pk)
+
+		except Exception as e:
+			print("Couldn't get Ethereum server pk: ", eth_pk)
+			print(e)
 
 @app.route('/trade', methods=['POST'])
 def trade():
