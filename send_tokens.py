@@ -19,13 +19,14 @@ def connect_to_algo(connection_type=''):
 
     return None
 
+
 #################### Done Saturday check this again // syntax. sell_amount 다 보내면 되는 건가?
 def send_tokens_algo(acl, sender_sk, txes):
     params = acl.suggested_params
-    
+
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
-	params.last = params.first + 800
+    params.last = params.first + 800
 
     # TODO: For each transaction, do the following:
     #       - Create the Payment transaction 
@@ -36,7 +37,7 @@ def send_tokens_algo(acl, sender_sk, txes):
 
     tx_ids = []
     for i,tx in enumerate(txes):
-        unsigned_tx = transaction.PaymentTxn(sender_sk,params,tx['receiver_pk],tx['sell_amount'])
+        unsigned_tx = transaction.PaymentTxn(sender_sk,params,tx['receiver_pk'],tx['sell_amount'])
         
         # TODO: Sign the transaction
         signed_tx = unsigned_tx.sign(sender_sk)
@@ -129,8 +130,9 @@ def send_tokens_eth(w3, sender_sk, txes):
                     'to': tx['receiver_pk'],
                     'value': tx['sell_amount'],
                     'data':b'' }
-         signed_txn = w3.eth.account.sign_transaction(tx_dict, sender_sk)
-         tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-         tx_ids.append(tx_id)
+        
+        signed_txn = w3.eth.account.sign_transaction(tx_dict, sender_sk)
+        tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        tx_ids.append(tx_id)
    
     return tx_ids
