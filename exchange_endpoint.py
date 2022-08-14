@@ -32,7 +32,7 @@ from web3.exceptions import TransactionNotFound
 # TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
-from models import Base, Order, TX
+from models import Base, Order, TX, Log
 engine = create_engine('sqlite:///orders.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
@@ -166,8 +166,21 @@ def insert_order(content):
 
 def log_message(d):
 
-    #Takes input dictionary d and writes it to the Log table
-    pass
+    # Takes input dictionary d and writes it to the Log table
+    payload = json.dumps(d['payload'])
+
+    try:
+        # Insert new log
+        log_obj = Log(message=json.dumps(d['payload']))
+
+        g.session.add(log_obj)
+        g.session.commit()
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+
 
 def get_algo_keys():
     
