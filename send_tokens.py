@@ -22,39 +22,46 @@ def connect_to_algo(connection_type=''):
 
     return algod_client
 
-def send_tokens_algo( acl, sender_sk, txes):
+def send_tokens_algo(acl, sender_sk, txes):
+
     params = acl.suggested_params
-    
+
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
 
-    # TODO: For each transaction, do the following:
-    #       - Create the Payment transaction 
-    #       - Sign the transaction
-    
-    # TODO: Return a list of transaction id's
+    params.last = params.first + 800
 
+    # TODO: For each transaction, do the following:
+    #       - Create the Payment transaction
+    #       - Sign the transaction
+
+    # TODO: Return a list of transaction id's
     sender_pk = account.address_from_private_key(sender_sk)
 
     tx_ids = []
-    for i,tx in enumerate(txes):
-        unsigned_tx = "Replace me with a transaction object"
+
+    for i, tx in enumerate(txes):
+        unsigned_tx = transaction.PaymentTxn(sender_sk,
+                                                params,
+                                                tx['receiver_pk'],
+                                                tx['sell_amount'])
 
         # TODO: Sign the transaction
-        signed_tx = "Replace me with a SignedTransaction object"
-        
+        signed_tx = unsigned_tx.sign(sender_sk)
+
         try:
-            print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}" )
-            
+            print(f"Sending {tx['amount']} microalgo from {sender_pk} to {tx['receiver_pk']}")
+
             # TODO: Send the transaction to the testnet
-            
-            tx_id = "Replace me with the tx_id"
-            txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
-            print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n" )
+            tx_id = acl.send_transaction(signed_tx)
+            txinfo = wait_for_confirmation_algo(acl, txid=tx_id)
+            print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n")
         except Exception as e:
             print(e)
 
-    return []
+        tx_ids.append(tx_id)
+
+    return tx_ids
 
 # Function from Algorand Inc.
 def wait_for_confirmation_algo(client, txid):
@@ -110,17 +117,29 @@ def wait_for_confirmation_eth(w3, tx_hash):
     return receipt
 
 
-####################
-def send_tokens_eth(w3,sender_sk,txes):
+#################### Done Saturday check this again // syntax. sell_amount 다 보내면 되는 건가?
+def send_tokens_eth(w3, sender_sk, txes):
+
     sender_account = w3.eth.account.privateKeyToAccount(sender_sk)
     sender_pk = sender_account._address
+    starting_nonce = w3.eth.get_transaction_count(sender_pk, "pending")
 
     # TODO: For each of the txes, sign and send them to the testnet
     # Make sure you track the nonce -locally-
-    
+
     tx_ids = []
-    for i,tx in enumerate(txes):
-        # Your code here
-        continue
+
+    for i, tx in enumerate(txes):
+        tx_dict = {
+            'nonce': starting_nonce + i,  # Locally update nonce
+            'gasPrice': w3.eth.gas_price,
+            'gas': w3.eth.estimate_gas(
+                {'from': sender_pk, 'to': tx['receiver_pk'], 'data': b'', 'amount': tx['sell_amount']}),
+            'to': tx['receiver_pk'],
+            'value': tx['sell_amount'],
+            'data': b''}
+        signed_txn = w3.eth.account.sign_transaction(tx_dict, sender_sk)
+        tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        tx_ids.append(tx_id)
 
     return tx_ids
