@@ -39,6 +39,10 @@ DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
 
+# mnemonic to generate the public key for the exchange server
+algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
+eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
+
 """ Pre-defined methods (do not need to change) """
 
 @app.before_request
@@ -169,13 +173,32 @@ def address():
         if not content['platform'] in ["Ethereum", "Algorand"]:
             print( f"Error: {content['platform']} is an invalid platform" )
             return jsonify( f"Error: invalid platform provided: {content['platform']}"  )
-        
+
         if content['platform'] == "Ethereum":
-            #Your code here
-            return jsonify( eth_pk )
+            try:
+
+                w3 = Web3()
+                w3.eth.account.enable_unaudited_hdwallet_features()
+                acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+                eth_pk = acct._address
+
+                return jsonify(eth_pk)
+
+            except Exception as e:
+                print("Couldn't get Ethereum server pk: ", eth_pk)
+                print(e)
+
         if content['platform'] == "Algorand":
-            #Your code here
-            return jsonify( algo_pk )
+            # Your code here
+            try:
+
+                algo_pk = mnemonic.to_public_key(algo_mnemonic)
+
+                return jsonify(algo_pk)
+
+            except Exception as e:
+                print("Couldn't get Ethereum server pk: ", eth_pk)
+                print(e)
 
 @app.route('/trade', methods=['POST'])
 def trade():
