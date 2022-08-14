@@ -106,29 +106,99 @@ def connect_to_blockchains():
         
 """ Helper Methods (skeleton code for you to implement) """
 
-def log_message(message_dict):
-    msg = json.dumps(message_dict)
+def verify(content):
 
-    # TODO: Add message to the Log table
-    
-    return
+    try:
+
+        if content['payload']['platform'] == 'Ethereum':
+            eth_sk = content['sig']
+            eth_pk = content['payload']['sender_pk']
+
+            payload = json.dumps(content['payload'])
+            eth_encoded_msg = eth_account.messages.encode_defunct(text=payload)
+            recovered_pk = eth_account.Account.recover_message(eth_encoded_msg, signature=eth_sk)
+
+            # Check if signature is valid
+            if recovered_pk == eth_pk:
+                result = True
+            else:
+                result = False
+
+            return result           # bool value
+
+        if content['payload']['platform'] == 'Algorand':
+            algo_sig = content['sig']
+            algo_pk = content['payload']['sender_pk']
+            payload = json.dumps(content['payload'])
+
+            result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
+            return result           # bool value
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+
+
+def insert_order(content):
+
+    #1. Insert new order
+    order_obj = Order(sender_pk=content['payload']['sender_pk'],
+		      receiver_pk=content['payload']['receiver_pk'],
+		      buy_currency=content['payload']['buy_currency'],
+		      sell_currency=content['payload']['sell_currency'],
+		      buy_amount=content['payload']['buy_amount'],
+		      sell_amount=content['payload']['sell_amount'],
+		      exchange_rate=(content['payload']['buy_amount']/content['payload']['sell_amount']),
+		      signature=content['sig'],
+		      tx_id=content['payload']['tx_id'])
+
+    g.session.add(order_obj)
+    g.session.commit()
+
+	# check up if it works well and get the order id
+	# results = g.session.execute("select distinct id from orders where " +
+	#                        " sender_pk = '" + str(order_obj.sender_pk) + "'" +
+	#                        " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
+	# order_id = results.first()['id']
+	# print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
+
+
+def log_message(d):
+
+    #Takes input dictionary d and writes it to the Log table
+    pass
 
 def get_algo_keys():
     
     # TODO: Generate or read (using the mnemonic secret) 
     # the algorand public/private keys
-    
-    return algo_sk, algo_pk
+
+    # 이게 문맥상 맞나? exchange server의 SK, PK와 같은데....
+    try:
+        sender_sk = mnemonic.to_private_key(algo_mnemonic)
+        sender_pk = mnemonic.to_public_key(algo_mnemonic)
+    except Exception as e:
+        print("Error: couldn't read sender address")
+        print(e)
+        return "", ""
+
+    return sender_sk, sender_pk
 
 
 def get_eth_keys(filename = "eth_mnemonic.txt"):
     w3 = Web3()
     
     # TODO: Generate or read (using the mnemonic secret) 
-    # the ethereum public/private keys
+
+    w3.eth.account.enable_unaudited_hdwallet_features()
+    acct = w3.eth.account.from_mnemonic(eth_mnemonic)
+    eth_pk = acct._address
+    eth_sk = acct._private_key.hex()  # private key is of type HexBytes which is not JSON serializable, adding .hex() converts it to a string
 
     return eth_sk, eth_pk
-  
+
+
 def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
@@ -204,7 +274,7 @@ def address():
 def trade():
     print( "In trade", file=sys.stderr )
     connect_to_blockchains()
-    get_keys()
+    # get_keys()
     if request.method == "POST":
         content = request.get_json(silent=True)
         columns = [ "buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk"]
@@ -226,7 +296,14 @@ def trade():
         if error:
             print( json.dumps(content) )
             return jsonify( False )
-        
+
+        # 1. Check the signature
+        if verify(content) is True:
+            # 2. Add the order to the table
+            insert_order(content)
+        else:
+            log_message(content)
+
         # Your code here
         
         # 1. Check the signature
