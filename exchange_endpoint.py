@@ -184,6 +184,8 @@ def process_order(content):
                       tx_id=content['payload']['tx_id']
                       )
 
+    print("here ", order_obj)
+
     # check up if it works well and get the order id
     results = g.session.execute("select distinct id from orders where orders.filled is null " +
                                 " and sender_pk = '" + str(order_obj.sender_pk) + "'" +
