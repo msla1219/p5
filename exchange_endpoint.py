@@ -243,9 +243,9 @@ def process_order(content):
                             buy_currency=order_obj.buy_currency,
                             sell_currency=order_obj.sell_currency,
                             buy_amount=order_obj.buy_amount - m_sell_amount,
-                            sell_amount=order_obj.sell_amount - (
+                            sell_amount=order_obj.sell_amount - math.ceil(
                                     (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
-                            exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - (
+                            exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - math.ceil(
                                     order_obj.sell_amount / order_obj.buy_amount * m_sell_amount)),
                             tx_id=order_obj.tx_id,
                             creator_id=order_id)
@@ -276,9 +276,9 @@ def process_order(content):
                             receiver_pk=m_receiver_pk,
                             buy_currency=m_buy_currency,
                             sell_currency=m_sell_currency,
-                            buy_amount=m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount,
+                            buy_amount=m_buy_amount - math.ceil(m_buy_amount / m_sell_amount) * order_obj.buy_amount,
                             sell_amount=m_sell_amount - order_obj.buy_amount,
-                            exchange_rate=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount) / (
+                            exchange_rate=(m_buy_amount - math.ceil(m_buy_amount / m_sell_amount) * order_obj.buy_amount) / (
                                     m_sell_amount - order_obj.buy_amount),
                             tx_id=m_tx_id,
                             creator_id=m_order_id)
