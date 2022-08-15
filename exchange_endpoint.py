@@ -257,7 +257,7 @@ def process_order(content):
         # 1st  transaction
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
-        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['receiver_pk'] = order_obj.receiver_pk
         tx_dict['amount'] = m_sell_amount
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
@@ -266,7 +266,7 @@ def process_order(content):
         # 2nd  transaction
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
-        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['receiver_pk'] = m_receiver_pk
         tx_dict['amount'] = m_buy_amount
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
@@ -291,7 +291,7 @@ def process_order(content):
         # 1st  transaction
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
-        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['receiver_pk'] = order_obj.receiver_pk
         tx_dict['amount'] = order_obj.buy_amount
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
@@ -300,7 +300,7 @@ def process_order(content):
         # 2nd  transaction
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
-        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['receiver_pk'] = m_receiver_pk
         tx_dict['amount'] = order_obj.sell_amount
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
@@ -313,7 +313,7 @@ def process_order(content):
         # 1st  transaction
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
-        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['receiver_pk'] = order_obj.receiver_pk
         tx_dict['amount'] = order_obj.buy_amount
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
@@ -322,7 +322,7 @@ def process_order(content):
         # 2nd  transaction
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
-        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['receiver_pk'] = m_receiver_pk
         tx_dict['amount'] = m_buy_amount
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
@@ -332,6 +332,67 @@ def process_order(content):
 
     # print("execute_txes to begin")
     # execute_txes(txes)
+
+
+def execute_txes(txes):
+    try:
+
+        if txes is None:
+            return True
+        if len(txes) == 0:
+            return True
+        print(f"Trying to execute {len(txes)} transactions")
+        print(f"IDs = {[tx['order_id'] for tx in txes]}")
+        eth_sk, eth_pk = get_eth_keys()
+        algo_sk, algo_pk = get_algo_keys()
+
+        if not all(tx['platform'] in ["Algorand", "Ethereum"] for tx in txes):
+            print("Error: execute_txes got an invalid platform!")
+            print(tx['platform'] for tx in txes)
+
+        algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
+        eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
+
+        print(algo_txes)
+        print(eth_txes)
+
+        # TODO:
+        #       1. Send tokens on the Algorand and eth testnets, appropriately
+        #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
+        #       2. Add all transactions to the TX table
+
+        # 1. Send tokens
+        w3 = connect_to_eth()
+        acl = connect_to_algo()
+
+        eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
+        print("eth_tx_ids ", eth_tx_ids)
+
+        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        print("algo_tx_ids ", algo_tx_ids)
+
+        # 2. Add all transactions to the TX table
+        tx_obj = TX(platform=eth_txes[0]['platform'],
+                    receiver_pk=eth_txes[0]['receiver_pk'],
+                    order_id=eth_txes[0]['order_id'],
+                    tx_id=eth_tx_ids)
+
+        g.session.add(tx_obj)
+        g.session.commit()
+
+        tx_obj = TX(platform=algo_txes[0]['platform'],
+                    receiver_pk=algo_txes[0]['receiver_pk'],
+                    order_id=algo_txes[0]['order_id'],
+                    tx_id=algo_tx_ids)
+
+        g.session.add(tx_obj)
+        g.session.commit()
+
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
 
 
 def log_message(d):
@@ -428,64 +489,6 @@ def fill_order(order, txes=[]):
     pass
 
 
-def execute_txes(txes):
-    try:
-
-        if txes is None:
-            return True
-        if len(txes) == 0:
-            return True
-        print(f"Trying to execute {len(txes)} transactions")
-        print(f"IDs = {[tx['order_id'] for tx in txes]}")
-        eth_sk, eth_pk = get_eth_keys()
-        algo_sk, algo_pk = get_algo_keys()
-
-        if not all(tx['platform'] in ["Algorand", "Ethereum"] for tx in txes):
-            print("Error: execute_txes got an invalid platform!")
-            print(tx['platform'] for tx in txes)
-
-        algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
-        eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
-
-        print(algo_txes)
-        print(eth_txes)
-
-        # TODO:
-        #       1. Send tokens on the Algorand and eth testnets, appropriately
-        #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
-        #       2. Add all transactions to the TX table
-
-        # 2. Add all transactions to the TX table
-        tx_obj = TX(platform=eth_txes[0]['platform'],
-                    receiver_pk=eth_txes[0]['receiver_pk'],
-                    order_id=eth_txes[0]['order_id'],
-                    tx_id=eth_txes[0]['tx_id'])
-
-        g.session.add(tx_obj)
-        g.session.commit()
-
-        tx_obj = TX(platform=algo_txes[0]['platform'],
-                    receiver_pk=algo_txes[0]['receiver_pk'],
-                    order_id=algo_txes[0]['order_id'],
-                    tx_id=algo_txes[0]['tx_id'])
-
-        g.session.add(tx_obj)
-        g.session.commit()
-
-        # 1. Send tokens
-        w3 = connect_to_eth()
-        acl = connect_to_algo()
-        eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
-        print("eth_tx_ids ", eth_tx_ids)
-
-        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
-        print("algo_tx_ids ", algo_tx_ids)
-
-
-    except Exception as e:
-        import traceback
-        print(traceback.format_exc())
-        print(e)
 
 
 """ End of Helper methods"""
