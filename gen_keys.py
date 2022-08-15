@@ -8,7 +8,6 @@ from web3 import Web3
 eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 algo_mnemonic = "half south great normal teach elephant tunnel grain monkey voice sentence express swear powder hawk valve grocery liar floor shoe come accuse nation abstract harsh"
 
-
 def eth():
     try:
 
@@ -36,7 +35,7 @@ def get_eth_keys():
         print("Couldn't get Ethereum server")
         print(e)
 
-def algoh():
+def algo():
     try:
 
         return mnemonic.to_public_key(algo_mnemonic)
