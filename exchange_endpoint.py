@@ -189,7 +189,7 @@ def process_order(content):
                                 " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
 
     order_id = results.first()['id']
-    print("new order_id: ", order_id)
+    # print("new order_id: ", order_id)
 
     # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
@@ -201,7 +201,7 @@ def process_order(content):
                                 " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
     if results.first()[0] == 0:
-        print("::::no matching order::::")
+        # print("::::no matching order::::")
         return
 
     results = g.session.execute(
@@ -220,11 +220,10 @@ def process_order(content):
         m_buy_amount = row['buy_amount']
         m_sell_amount = row['sell_amount']
         m_tx_id = row['tx_id']
-
-        print(" matched at ID: ", m_order_id)
+        # print(" matched at ID: ", m_order_id)
         break
 
-    print(" matching order: ", m_order_id, m_buy_currency, m_sell_currency, m_buy_amount, m_sell_amount)
+    # print(" matching order: ", m_order_id, m_buy_currency, m_sell_currency, m_buy_amount, m_sell_amount)
 
     # update both the matching orders
     stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and filled is null")
@@ -272,7 +271,6 @@ def process_order(content):
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
-        print("case 1")
     elif order_obj.buy_amount < m_sell_amount:
         d_order_obj = Order(sender_pk=m_sender_pk,
                             receiver_pk=m_receiver_pk,
@@ -306,8 +304,6 @@ def process_order(content):
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
-        print("case 2")
-
     else:  # perfect matched
         # construct tx
         # 1st  transaction
@@ -328,9 +324,6 @@ def process_order(content):
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
-        print("case 3")
-
-    print("execute_txes to begin")
     execute_txes(txes)
 
 
@@ -372,7 +365,8 @@ def execute_txes(txes):
 
         tx_dict = {'nonce': starting_nonce + 0,  # Locally update nonce
                    'gasPrice': w3.eth.gas_price,
-                   'gas': w3.eth.estimate_gas({'from': eth_pk, 'to': eth_txes[0]['receiver_pk'], 'data': b'', 'amount': eth_txes[0]['amount']}),
+                   'gas': w3.eth.estimate_gas({'from': eth_pk, 'to': eth_txes[0]['receiver_pk'], 'data': b'',
+                                               'amount': eth_txes[0]['amount']}),
                    'to': eth_txes[0]['receiver_pk'],
                    'value': eth_txes[0]['amount'],
                    'data': b''}
@@ -384,7 +378,7 @@ def execute_txes(txes):
         eth_txes[0]['tx_id'] = tx_id.hex()
         print("tx_id ", tx_id.hex())
 
-        algod_token = "ROs2829i9lacHmOnCY2ZA1Y0nbAIXfQn9kG9vRkd"  # my own API key
+        algod_token = "ROs2829i9lacHmOnCY2ZA1Y0nbAIXfQn9kG9vRkd"        # my own API key
         algod_address = "https://testnet-algorand.api.purestake.io/ps2"
         headers = {"X-API-Key": algod_token}
         algod_client = algod.AlgodClient(algod_token, algod_address, headers)
@@ -402,25 +396,24 @@ def execute_txes(txes):
         signed_tx = unsigned_tx.sign(algo_sk)
         tx_id = algod_client.send_transaction(signed_tx)
         algo_txes[0]['tx_id'] = tx_id
+
         print("tx_id ", tx_id)
 
         # 2. Add all transactions to the TX table
-        tx_obj = TX(platform=eth_txes[0]['platform'],
+        tx_obj1 = TX(platform=eth_txes[0]['platform'],
                     receiver_pk=eth_txes[0]['receiver_pk'],
                     order_id=eth_txes[0]['order_id'],
                     tx_id=eth_txes[0]['tx_id'])
 
-        print(tx_obj)
-        g.session.add(tx_obj)
+        g.session.add(tx_obj1)
         g.session.commit()
 
-        tx_obj = TX(platform=algo_txes[0]['platform'],
+        tx_obj2 = TX(platform=algo_txes[0]['platform'],
                     receiver_pk=algo_txes[0]['receiver_pk'],
                     order_id=algo_txes[0]['order_id'],
                     tx_id=eth_txes[0]['tx_id'])
 
-        print(tx_obj)
-        g.session.add(tx_obj)
+        g.session.add(tx_obj2)
         g.session.commit()
 
     except Exception as e:
@@ -521,8 +514,6 @@ def fill_order(order, txes=[]):
     # Make sure that you end up executing all resulting transactions!
 
     pass
-
-
 
 
 """ End of Helper methods"""
