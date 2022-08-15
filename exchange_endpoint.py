@@ -81,7 +81,7 @@ def connect_to_blockchains():
         g.icl
     except AttributeError as ae:
         icl_flag = True
-
+    connect_to_algo
     try:
         if icl_flag or not g.icl.health():
             # Define the index client
@@ -381,6 +381,12 @@ def execute_txes(txes):
     #       1. Send tokens on the Algorand and eth testnets, appropriately
     #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
     #       2. Add all transactions to the TX table
+
+    # 1. Send tokens
+    algo_tx_ids = send_tokens_algo(g.acl, gen_keys.algo(mode="sk"), algo_txes)
+    eth_tx_ids = send_tokens_algo(g.w3, gen_keys.eth(mode="sk"), eth_txes)
+
+    # 2. Add all transactions to the TX table
 
     pass
 
