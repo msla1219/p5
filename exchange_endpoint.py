@@ -369,7 +369,7 @@ def execute_txes(txes):
         print("eth_pk: ", eth_pk)
         print("eth_sk: ", eth_sk)
         print("receiver_pk: ", eth_txes[0]['receiver_pk'])
-
+        '''
         tx_dict = {'nonce': starting_nonce + 0,  # Locally update nonce
                    'gasPrice': w3.eth.gas_price,
                    'gas': w3.eth.estimate_gas({'from': eth_pk, 'to': eth_txes[0]['receiver_pk'], 'data': b'', 'amount': eth_txes[0]['amount']}),
@@ -411,7 +411,7 @@ def execute_txes(txes):
         print(tx_obj)
         g.session.add(tx_obj)
         g.session.commit()
-
+        '''
 
     except Exception as e:
         import traceback
