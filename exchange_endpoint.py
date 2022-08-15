@@ -391,7 +391,7 @@ def execute_txes(txes):
 
         # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
         sp = algod_client.suggested_params()
-        '''
+
         print("algo_pk: ", algo_pk)
         print("algo_sk: ", algo_sk)
         print("sp: ", sp)
@@ -403,7 +403,7 @@ def execute_txes(txes):
         tx_id = acl.send_transaction(signed_tx)
         algo_txes[0]['tx_id'] = tx_id
         print("tx_id ", tx_id)
-        '''
+
         # 2. Add all transactions to the TX table
         tx_obj = TX(platform=eth_txes[0]['platform'],
                     receiver_pk=eth_txes[0]['receiver_pk'],
