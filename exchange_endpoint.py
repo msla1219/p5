@@ -228,11 +228,11 @@ def process_order(content):
     # print(" order['sell_amount']/order['buy_amount']: ", order['sell_amount']/order['buy_amount'], ">=", "(buy_amount/sell_amount)", (m_buy_amount/m_sell_amount))
 
     # update both the matching orders
-    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and orders.filled is null")
     stmt = stmt.bindparams(the_id=order_id, id=m_order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
-    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and orders.filled is null")
     stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
