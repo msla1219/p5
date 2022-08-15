@@ -444,6 +444,25 @@ def trade():
         if isPaidOrder(content) is True:
             # 3b. Fill the order (as in Exchange Server II) if the order is valid
             process_order(content)
+
+            results = g.session.execute(
+                "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, tx_id " +
+                "from orders where orders.filled is not null")
+
+            for row in results:
+                print(row)
+                '''
+                m_order_id = row['id']
+                m_sender_pk = row['sender_pk']
+                m_receiver_pk = row['receiver_pk']
+                m_buy_currency = row['buy_currency']
+                m_sell_currency = row['sell_currency']
+                m_buy_amount = row['buy_amount']
+                m_sell_amount = row['sell_amount']
+                m_tx_id = row['tx_id']
+                # print(" matched at ID: ", m_order_id)
+                '''
+
         # 4. Execute the transactions
         # If all goes well, return jsonify(True). else return jsonify(False)
 
