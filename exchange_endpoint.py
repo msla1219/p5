@@ -170,8 +170,8 @@ def insert_order(content):
         print(traceback.format_exc())
         print(e)
 
-def process_order(content):
 
+def process_order(content):
     order_obj = Order(sender_pk=content['payload']['sender_pk'],
                       receiver_pk=content['payload']['receiver_pk'],
                       buy_currency=content['payload']['buy_currency'],
@@ -235,7 +235,7 @@ def process_order(content):
     stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
-    txes = list()               # list of transactions to execute
+    txes = list()  # list of transactions to execute
 
     # 3. Create derived order
     if order_obj.buy_amount > m_sell_amount:
@@ -245,9 +245,9 @@ def process_order(content):
                             sell_currency=order_obj.sell_currency,
                             buy_amount=order_obj.buy_amount - m_sell_amount,
                             sell_amount=order_obj.sell_amount - (
-                                        (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
+                                    (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
                             exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - (
-                                        order_obj.sell_amount / order_obj.buy_amount * m_sell_amount)),
+                                    order_obj.sell_amount / order_obj.buy_amount * m_sell_amount)),
                             tx_id=order_obj.tx_id,
                             creator_id=order_id)
         g.session.add(d_order_obj)
@@ -260,6 +260,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = order_obj.sender_pk
         tx_dict['amount'] = m_sell_amount
         tx_dict['order_id'] = order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         # 2nd  transaction
@@ -268,6 +269,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = m_sender_pk
         tx_dict['amount'] = m_buy_amount
         tx_dict['order_id'] = m_order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         print("case 1")
@@ -279,7 +281,7 @@ def process_order(content):
                             buy_amount=m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount,
                             sell_amount=m_sell_amount - order_obj.buy_amount,
                             exchange_rate=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount) / (
-                                        m_sell_amount - order_obj.buy_amount),
+                                    m_sell_amount - order_obj.buy_amount),
                             tx_id=m_tx_id,
                             creator_id=m_order_id)
         g.session.add(d_order_obj)
@@ -306,7 +308,7 @@ def process_order(content):
 
         print("case 2")
 
-    else:   # perfect matched
+    else:  # perfect matched
         # construct tx
         # 1st  transaction
         tx_dict = dict()
@@ -403,7 +405,7 @@ def isPaidOrder(content):
                 return False
 
             if ((result['transactions'][0]['payment-transaction']['receiver'] == gen_keys.algo()) and
-                result['transactions'][0]['payment-transaction']['amount']):
+                    result['transactions'][0]['payment-transaction']['amount']):
                 return True
             else:
                 print("info of algo tx_id result not matched: ", content['payload']['tx_id'])
@@ -416,6 +418,7 @@ def isPaidOrder(content):
         print(traceback.format_exc())
         print(e)
 
+
 def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
@@ -426,7 +429,6 @@ def fill_order(order, txes=[]):
 
 
 def execute_txes(txes):
-
     try:
 
         if txes is None:
@@ -453,20 +455,19 @@ def execute_txes(txes):
         #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
         #       2. Add all transactions to the TX table
 
-
         # 2. Add all transactions to the TX table
-        tx_obj = TX(platform = eth_txes[0]['platform'],
-                    receiver_pk = eth_txes[0]['receiver_pk'],
-                    order_id = eth_txes[0]['order_id'],
-                    tx_id = eth_txes[0]['tx_id'])
+        tx_obj = TX(platform=eth_txes[0]['platform'],
+                    receiver_pk=eth_txes[0]['receiver_pk'],
+                    order_id=eth_txes[0]['order_id'],
+                    tx_id=eth_txes[0]['tx_id'])
 
         g.session.add(tx_obj)
         g.session.commit()
 
-        tx_obj = TX(platform = algo_txes[0]['platform'],
-                    receiver_pk = algo_txes[0]['receiver_pk'],
-                    order_id = algo_txes[0]['order_id'],
-                    tx_id = algo_txes[0]['tx_id'])
+        tx_obj = TX(platform=algo_txes[0]['platform'],
+                    receiver_pk=algo_txes[0]['receiver_pk'],
+                    order_id=algo_txes[0]['order_id'],
+                    tx_id=algo_txes[0]['tx_id'])
 
         g.session.add(tx_obj)
         g.session.commit()
