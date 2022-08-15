@@ -191,7 +191,7 @@ def process_order(content):
                                 " and tx_id = '" + str(order_obj.tx_id) + "'")
 
     order_id = results.first()['id']
-    # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
+    print("new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
     # 2. Matching order
     results = g.session.execute(
@@ -201,8 +201,10 @@ def process_order(content):
         " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
         " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
+    print(len(results))
+
     if len(results) == 0:
-        # print("::::no matching order::::")
+        print("::::no matching order::::")
         return
 
     for row in results:
@@ -214,7 +216,7 @@ def process_order(content):
         m_buy_amount = row['buy_amount']
         m_sell_amount = row['sell_amount']
         m_tx_id = row['tx_id']
-        # print(" matched at ID: ", m_order_id)
+        print("matched at ID: ", m_order_id)
         break
 
     # print(" matching order: ", m_order_id, m_buy_currency, m_sell_currency, m_buy_amount, m_sell_amount)
