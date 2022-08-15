@@ -363,11 +363,10 @@ def execute_txes(txes):
 
         # 1. Send tokens
         w3 = connect_to_eth()
-        acl = connect_to_algo()
-
-        eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
+        eth_tx_ids = send_tokens_eth(w3, eth_sk, eth_txes)
         print("eth_tx_ids ", eth_tx_ids)
 
+        acl = connect_to_algo()
         algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
         print("algo_tx_ids ", algo_tx_ids)
 
