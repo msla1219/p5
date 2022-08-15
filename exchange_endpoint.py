@@ -257,7 +257,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.floor(m_sell_amount)
+        tx_dict['amount'] = math.ceil(m_sell_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -266,7 +266,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] = math.floor(m_buy_amount)
+        tx_dict['amount'] = math.ceil(m_buy_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -290,7 +290,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.floor(order_obj.buy_amount)
+        tx_dict['amount'] = math.ceil(order_obj.buy_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -299,7 +299,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] = math.floor(order_obj.sell_amount)
+        tx_dict['amount'] = math.ceil(order_obj.sell_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -310,7 +310,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.floor(order_obj.buy_amount)
+        tx_dict['amount'] = math.ceil(order_obj.buy_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -319,7 +319,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] =  math.floor(m_buy_amount)
+        tx_dict['amount'] =  math.ceil(m_buy_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -376,7 +376,7 @@ def execute_txes(txes):
         signed_txn = w3.eth.account.sign_transaction(tx_dict, eth_sk)
         tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         eth_txes[0]['tx_id'] = tx_id.hex()
-        print("tx_id ", tx_id.hex())
+        print("tx_id ", tx_id)
 
         algod_token = "ROs2829i9lacHmOnCY2ZA1Y0nbAIXfQn9kG9vRkd"        # my own API key
         algod_address = "https://testnet-algorand.api.purestake.io/ps2"
