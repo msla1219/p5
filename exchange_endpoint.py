@@ -149,20 +149,26 @@ def verify(content):
 
 
 def insert_order(content):
-    # 1. Insert new order
-    order_obj = Order(sender_pk=content['payload']['sender_pk'],
-                      receiver_pk=content['payload']['receiver_pk'],
-                      buy_currency=content['payload']['buy_currency'],
-                      sell_currency=content['payload']['sell_currency'],
-                      buy_amount=content['payload']['buy_amount'],
-                      sell_amount=content['payload']['sell_amount'],
-                      exchange_rate=(content['payload']['buy_amount'] / content['payload']['sell_amount']),
-                      signature=content['sig'],
-                      tx_id=content['payload']['tx_id'])
+    try:
 
-    g.session.add(order_obj)
-    g.session.commit()
+        # 1. Insert new order
+        order_obj = Order(sender_pk=content['payload']['sender_pk'],
+                          receiver_pk=content['payload']['receiver_pk'],
+                          buy_currency=content['payload']['buy_currency'],
+                          sell_currency=content['payload']['sell_currency'],
+                          buy_amount=content['payload']['buy_amount'],
+                          sell_amount=content['payload']['sell_amount'],
+                          exchange_rate=(content['payload']['buy_amount'] / content['payload']['sell_amount']),
+                          signature=content['sig'],
+                          tx_id=content['payload']['tx_id'])
 
+        g.session.add(order_obj)
+        g.session.commit()
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
 
 def process_order(content):
 
@@ -446,10 +452,10 @@ def execute_txes(txes):
         # 1. Send tokens
         acl = connect_to_algo()
         w3 = connect_to_eth()
-        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
         eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
 
-        print("algo_tx_ids ", algo_tx_ids)
+        # print("algo_tx_ids ", algo_tx_ids)
         print("eth_tx_ids ", eth_tx_ids)
 
         # 2. Add all transactions to the TX table
