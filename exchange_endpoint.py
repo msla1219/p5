@@ -187,21 +187,23 @@ def process_order(content):
     print("here order_obj", order_obj)
 
     # check up if it works well and get the order id
-    results = g.session.execute("select distinct id from orders where " +
+    results = g.session.execute("select distinct id from orders where orders.filled is null " +
                                 " sender_pk = '" + str(order_obj.sender_pk) + "'" +
                                 " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
 
     order_id = results.first()['id']
+    print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
-    # check up if it works well and get the order id
-    results = g.session.execute("select distinct id from orders where " +
-                                " sender_pk = '" + str(order_obj.sender_pk) + "'" +
-                                " and tx_id = '" + str(order_obj.tx_id) + "'" +
-                                " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
+    # 2. Matching order
+    results = g.session.execute("select count(id) " +
+                                " from orders where orders.filled is null " +
+                                " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
+                                " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
+                                " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
-    order_id = results.first()['id']
-
-    print("new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
+    if results.first()[0] == 0:
+        # print("::::no matching order::::")
+        return
 
     # 2. Matching order
     results = g.session.execute(
