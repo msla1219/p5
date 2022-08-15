@@ -451,18 +451,18 @@ def execute_txes(txes):
 
 
         # 2. Add all transactions to the TX table
-        tx_obj = TX(platform = eth_tx_ids[0]['platform'],
-                    receiver_pk = eth_tx_ids[0]['receiver_pk'],
-                    order_id = eth_tx_ids[0]['order_id'],
-                    tx_id = eth_tx_ids[0]['tx_id'])
+        tx_obj = TX(platform = eth_txes[0]['platform'],
+                    receiver_pk = eth_txes[0]['receiver_pk'],
+                    order_id = eth_txes[0]['order_id'],
+                    tx_id = eth_txes[0]['tx_id'])
 
         g.session.add(tx_obj)
         g.session.commit()
 
-        tx_obj = TX(platform = algo_tx_ids[0]['platform'],
-                    receiver_pk = algo_tx_ids[0]['receiver_pk'],
-                    order_id = algo_tx_ids[0]['order_id'],
-                    tx_id = algo_tx_ids[0]['tx_id'])
+        tx_obj = TX(platform = algo_txes[0]['platform'],
+                    receiver_pk = algo_txes[0]['receiver_pk'],
+                    order_id = algo_txes[0]['order_id'],
+                    tx_id = algo_txes[0]['tx_id'])
 
         g.session.add(tx_obj)
         g.session.commit()
