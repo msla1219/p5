@@ -512,7 +512,7 @@ def trade():
 
         # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
         if isPaidOrder(content) is True:
-
+            print("well paid order checked!")
             # 3b. Fill the order (as in Exchange Server II) if the order is valid
             process_order(content)
 
@@ -537,7 +537,7 @@ def trade():
         # 4. Execute the transactions
         # If all goes well, return jsonify(True). else return jsonify(False)
 
-    return jsonify(True)
+        return jsonify(True)
 
 
 @app.route('/order_book')
