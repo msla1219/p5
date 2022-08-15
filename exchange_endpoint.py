@@ -387,6 +387,12 @@ def execute_txes(txes):
         acl = connect_to_algo()
         # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
         sp = acl.suggested_params()
+        print("algo_pk: ", algo_pk)
+        print("algo_sk: ", algo_sk)
+        print("sp: ", sp)
+        print("receiver_pk: ", algo_txes[0]['receiver_pk'])
+        print("amount: ", algo_txes[0]['amount'])
+
         unsigned_tx = transaction.PaymentTxn(algo_pk, sp, algo_txes[0]['receiver_pk'], algo_txes[0]['amount'])
         signed_tx = unsigned_tx.sign(algo_sk)
         tx_id = acl.send_transaction(signed_tx)
@@ -411,7 +417,7 @@ def execute_txes(txes):
         print(tx_obj)
         g.session.add(tx_obj)
         g.session.commit()
-        
+
 
     except Exception as e:
         import traceback
