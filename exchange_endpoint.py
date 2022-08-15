@@ -439,6 +439,7 @@ def trade():
             insert_order(content)
         else:
             log_message(content)
+            return jsonify(False)
 
         # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
         if isPaidOrder(content) is True:
