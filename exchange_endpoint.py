@@ -473,13 +473,14 @@ def execute_txes(txes):
         g.session.commit()
 
         # 1. Send tokens
-        acl = connect_to_algo()
         w3 = connect_to_eth()
-        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        acl = connect_to_algo()
         eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
-
-        # print("algo_tx_ids ", algo_tx_ids)
         print("eth_tx_ids ", eth_tx_ids)
+
+        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        print("algo_tx_ids ", algo_tx_ids)
+
 
     except Exception as e:
         import traceback
