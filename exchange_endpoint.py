@@ -164,13 +164,6 @@ def insert_order(content):
     g.session.commit()
 
 
-# check up if it works well and get the order id
-# results = g.session.execute("select distinct id from orders where " +
-#                        " sender_pk = '" + str(order_obj.sender_pk) + "'" +
-#                        " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
-# order_id = results.first()['id']
-# print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
-
 def process_order(content):
 
     order_obj = Order(sender_pk=content['payload']['sender_pk'],
@@ -190,7 +183,7 @@ def process_order(content):
                                 " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
 
     order_id = results.first()['id']
-    print("order_id: ", order_id)
+    print("new order_id: ", order_id)
 
     # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
@@ -202,7 +195,7 @@ def process_order(content):
                                 " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
     if results.first()[0] == 0:
-        # print("::::no matching order::::")
+        print("::::no matching order::::")
         return
 
     results = g.session.execute(
@@ -271,8 +264,7 @@ def process_order(content):
         tx_dict['order_id'] = m_order_id
         txes.append(tx_dict)
 
-
-
+        print("case 1")
     elif order_obj.buy_amount < m_sell_amount:
         d_order_obj = Order(sender_pk=m_sender_pk,
                             receiver_pk=m_receiver_pk,
@@ -304,6 +296,8 @@ def process_order(content):
         tx_dict['order_id'] = m_order_id
         txes.append(tx_dict)
 
+        print("case 2")
+
     else:   # perfect matched
         # construct tx
         # 1st  transaction
@@ -322,6 +316,9 @@ def process_order(content):
         tx_dict['order_id'] = m_order_id
         txes.append(tx_dict)
 
+        print("case 3")
+
+    print("execute_txes to begin")
     execute_txes(txes)
 
 
@@ -580,5 +577,3 @@ def order_book():
 
 if __name__ == '__main__':
     app.run(port='5002')
-
-  
