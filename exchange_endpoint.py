@@ -187,7 +187,8 @@ def process_order(content):
     # check up if it works well and get the order id
     results = g.session.execute("select distinct id from orders where orders.filled is null " +
                                 " and sender_pk = '" + str(order_obj.sender_pk) + "'" +
-                                " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
+                                " and receiver_pk = '" + str(order_obj.receiver_pk) + "'"
+                                " and tx_id = '" + str(order_obj.tx_id) + "'")
 
     order_id = results.first()['id']
     # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
