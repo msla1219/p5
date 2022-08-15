@@ -6,20 +6,21 @@ from algosdk import account
 from algosdk.future import transaction
 
 def connect_to_algo(connection_type=''):
-    #Connect to Algorand node maintained by PureStake
-    algod_token = "B3SU4KcVKi94Jap2VXkK83xx38bsv95K5UZm2lab"
-    
+    # Connect to Algorand node maintained by PureStake
+    # algod_token = "B3SU4KcVKi94Jap2VXkK83xx38bsv95K5UZm2lab"
+    algod_token = "ROs2829i9lacHmOnCY2ZA1Y0nbAIXfQn9kG9vRkd"        # my own API key
+    headers = {"X-API-Key": algod_token}
+
     if connection_type == "indexer":
         # TODO: return an instance of the v2client indexer. This is used for checking payments for tx_id's
         algod_address = "https://testnet-algorand.api.purestake.io/idx2"
-        headers = {"X-API-Key": algod_token}
         algod_client = indexer.IndexerClient(algod_token, algod_address, headers)
 
     else:
         # TODO: return an instance of the client for sending transactions
         # Tutorial Link: https://developer.algorand.org/tutorials/creating-python-transaction-purestake-api/
         algod_address = "https://testnet-algorand.api.purestake.io/ps2"
-        algod_client = algod.AlgodClient(algod_token, algod_address)
+        algod_client = algod.AlgodClient(algod_token, algod_address, headers)
 
     return algod_client
 
@@ -56,7 +57,7 @@ def send_tokens_algo(acl, sender_sk, txes):
             # TODO: Send the transaction to the testnet
             tx_id = acl.send_transaction(signed_tx)
 
-            time.sleep(10)
+            time.sleep(5)
 
             txinfo = wait_for_confirmation_algo(acl, txid=tx_id)
             print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n")
@@ -76,7 +77,7 @@ def wait_for_confirmation_algo(client, txid):
     last_round = client.status().get('last-round')
     txinfo = client.pending_transaction_info(txid)
 
-    time.sleep(10)
+    time.sleep(5)
 
     while not (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0):
         print("Waiting for confirmation")
@@ -120,7 +121,7 @@ def wait_for_confirmation_eth(w3, tx_hash):
                 receipt = w3.eth.get_transaction_receipt(tx_hash)
             except TransactionNotFound:
                 continue
-            break 
+            break
     return receipt
 
 
