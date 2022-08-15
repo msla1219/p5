@@ -384,9 +384,13 @@ def execute_txes(txes):
         eth_txes[0]['tx_id'] = tx_id.hex()
         print("tx_id ", tx_id.hex())
 
-        acl = connect_to_algo()
+        algod_token = "ROs2829i9lacHmOnCY2ZA1Y0nbAIXfQn9kG9vRkd"  # my own API key
+        algod_address = "https://testnet-algorand.api.purestake.io/ps2"
+        headers = {"X-API-Key": algod_token}
+        algod_client = algod.AlgodClient(algod_token, algod_address, headers)
+
         # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
-        sp = acl.suggested_params()
+        sp = algod_client.suggested_params()
         '''
         print("algo_pk: ", algo_pk)
         print("algo_sk: ", algo_sk)
