@@ -191,9 +191,11 @@ def process_order(content):
                                 " and sender_pk = '" + str(order_obj.sender_pk) + "'" +
                                 " and receiver_pk = '" + str(order_obj.receiver_pk) + "'"
                                 " and tx_id = '" + str(order_obj.tx_id) + "'")
-    print("here results", results)
 
-    order_id = results.first()['id']
+    for row in results:
+        order_id = row['id']
+        break
+
     print("new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
     # 2. Matching order
