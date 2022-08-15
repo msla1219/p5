@@ -31,7 +31,7 @@ def send_tokens_algo(acl, sender_sk, txes):
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
 
-    params.last = params.first + 800
+    # params.last = params.first + 800
 
     # TODO: For each transaction, do the following:
     #       - Create the Payment transaction
