@@ -363,12 +363,29 @@ def execute_txes(txes):
 
         # 1. Send tokens
         w3 = connect_to_eth()
-        eth_tx_ids = send_tokens_eth(w3, eth_sk, eth_txes)
-        print("eth_tx_ids ", eth_tx_ids)
+        starting_nonce = w3.eth.get_transaction_count(eth_sk, "pending")
+
+        # eth_tx_ids = send_tokens_eth(w3, eth_sk, eth_txes)
+        tx_dict = {'nonce': starting_nonce + 0,  # Locally update nonce
+                   'gasPrice': w3.eth.gas_price,
+                   'gas': w3.eth.estimate_gas({'from': eth_pk, 'to': eth_txes[0]['receiver_pk'], 'data': b'', 'amount': eth_txes[0]['amount']}),
+                   'to': eth_txes[0]['receiver_pk'],
+                   'value': eth_txes[0]['amount'],
+                   'data': b''}
+
+        signed_txn = w3.eth.account.sign_transaction(tx_dict, eth_sk)
+        tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        eth_txes[0]['tx_id'] = tx_id.hex()
+        print("tx_id ", tx_id.hex())
 
         acl = connect_to_algo()
-        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
-        print("algo_tx_ids ", algo_tx_ids)
+        # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        sp = acl.suggested_params()
+        unsigned_tx = transaction.PaymentTxn(algo_pk, sp, algo_txes[0]['receiver_pk'], algo_txes[0]['amount'])
+        signed_tx = unsigned_tx.sign(algo_sk)
+        tx_id = acl.send_transaction(signed_tx)
+        algo_txes[0]['tx_id'] = tx_id
+        print("tx_id ", tx_id)
 
         # 2. Add all transactions to the TX table
         tx_obj = TX(platform=eth_txes[0]['platform'],
