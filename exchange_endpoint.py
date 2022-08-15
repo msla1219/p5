@@ -236,19 +236,17 @@ def isPaidOrder(content):
         if content['payload']['platform'] == 'Algorand':
 
             myIndexer = connect_to_algo(connection_type='indexer')
-            result = myIndexer.search_transactions(txid=content['payload']['tx_id'], txn_type="pay")
+            result = myIndexer.search_transactions(txid=content['payload']['tx_id'])
 
-            if len(result) == 0:
-                print("search algo tx_id result not found")
+            if len(result['transactions']) == 0:
+                print("search algo tx_id result not found: ", content['payload']['tx_id'])
                 return False
 
-            print("result: ", result[0])
-
-            if ((result[0]['transaction']['snd'] == content['payload']['sender_pk']) and
-                (result[0]['transaction']['rcv'] == gen_keys.algo()) and
-                (result[0]['transaction']['amt'] == content['payload']['sell_amount'])):
+            if ((result['transactions'][0]['payment-transaction']['receiver'] == gen_keys.algo()) and
+                result['transactions'][0]['payment-transaction']['amount']):
                 return True
             else:
+                print("info of algo tx_id result not matched: ", content['payload']['tx_id'])
                 return False
 
         return False  # neither platform is 'Ethereum' nor 'Algorand'
