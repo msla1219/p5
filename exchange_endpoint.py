@@ -373,6 +373,8 @@ def execute_txes(txes):
                    'value': eth_txes[0]['amount'],
                    'data': b''}
 
+        print(tx_dict)
+
         signed_txn = w3.eth.account.sign_transaction(tx_dict, eth_sk)
         tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         eth_txes[0]['tx_id'] = tx_id.hex()
