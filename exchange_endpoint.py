@@ -330,8 +330,8 @@ def process_order(content):
 
         print("case 3")
 
-    print("execute_txes to begin")
-    execute_txes(txes)
+    # print("execute_txes to begin")
+    # execute_txes(txes)
 
 
 def log_message(d):
