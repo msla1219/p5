@@ -446,7 +446,7 @@ def trade():
             process_order(content)
 
             results = g.session.execute(
-                "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, tx_id " +
+                "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, counterparty_id, tx_id " +
                 "from orders where orders.filled is not null")
 
             for row in results:
