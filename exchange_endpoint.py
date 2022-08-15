@@ -32,6 +32,7 @@ from web3.exceptions import TransactionNotFound
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
 from models import Base, Order, TX, Log
+import gen_keys
 
 engine = create_engine('sqlite:///orders.db')
 Base.metadata.bind = engine
@@ -40,8 +41,8 @@ DBSession = sessionmaker(bind=engine)
 app = Flask(__name__)
 
 # mnemonic to generate the public key for the exchange server
-algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
 eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
+algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
 
 """ Pre-defined methods (do not need to change) """
 
@@ -225,7 +226,7 @@ def isPaidOrder(content):
             tx = w3.eth.get_transaction(content['payload']['tx_id'])
 
             if ((tx['from'] == content['payload']['sender_pk']) and
-                    (tx['to'] == content['payload']['receiver_pk']) and
+                    (tx['to'] == gen_keys.eth()) and
                     (tx['value'] == content['payload']['sell_amount'])):
                 return True
             else:
@@ -244,7 +245,7 @@ def isPaidOrder(content):
             print("result: ", result[0])
 
             if ((result[0]['transaction']['snd'] == content['payload']['sender_pk']) and
-                (result[0]['transaction']['rcv'] == content['payload']['receiver_pk']) and
+                (result[0]['transaction']['rcv'] == gen_keys.algo()) and
                 (result[0]['transaction']['amt'] == content['payload']['sell_amount'])):
                 return True
             else:
@@ -306,30 +307,10 @@ def address():
             return jsonify(f"Error: invalid platform provided: {content['platform']}")
 
         if content['platform'] == "Ethereum":
-            try:
-
-                w3 = Web3()
-                w3.eth.account.enable_unaudited_hdwallet_features()
-                acct = w3.eth.account.from_mnemonic(eth_mnemonic)
-                eth_pk = acct._address
-
-                return jsonify(eth_pk)
-
-            except Exception as e:
-                print("Couldn't get Ethereum server pk: ", eth_pk)
-                print(e)
+            return jsonify(gen_keys.eth())
 
         if content['platform'] == "Algorand":
-            # Your code here
-            try:
-
-                algo_pk = mnemonic.to_public_key(algo_mnemonic)
-
-                return jsonify(algo_pk)
-
-            except Exception as e:
-                print("Couldn't get Ethereum server pk: ", eth_pk)
-                print(e)
+            return jsonify(gen_keys.algo())
 
 
 @app.route('/trade', methods=['POST'])
