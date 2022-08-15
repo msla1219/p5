@@ -6,8 +6,7 @@ from web3 import Web3
 
 # mnemonic to generate the public key for the exchange server
 eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
-algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
-
+algo_mnemonic = "half south great normal teach elephant tunnel grain monkey voice sentence express swear powder hawk valve grocery liar floor shoe come accuse nation abstract harsh"
 
 def eth():
     try:
