@@ -386,8 +386,8 @@ def execute_txes(txes):
 
         acl = connect_to_algo()
         # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
-        '''
         sp = acl.suggested_params()
+        '''
         print("algo_pk: ", algo_pk)
         print("algo_sk: ", algo_sk)
         print("sp: ", sp)
