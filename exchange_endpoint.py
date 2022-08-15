@@ -416,42 +416,49 @@ def fill_order(order, txes=[]):
 
 
 def execute_txes(txes):
-    if txes is None:
-        return True
-    if len(txes) == 0:
-        return True
-    print(f"Trying to execute {len(txes)} transactions")
-    print(f"IDs = {[tx['order_id'] for tx in txes]}")
-    eth_sk, eth_pk = get_eth_keys()
-    algo_sk, algo_pk = get_algo_keys()
 
-    if not all(tx['platform'] in ["Algorand", "Ethereum"] for tx in txes):
-        print("Error: execute_txes got an invalid platform!")
-        print(tx['platform'] for tx in txes)
+    try:
 
-    algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
-    eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
+        if txes is None:
+            return True
+        if len(txes) == 0:
+            return True
+        print(f"Trying to execute {len(txes)} transactions")
+        print(f"IDs = {[tx['order_id'] for tx in txes]}")
+        eth_sk, eth_pk = get_eth_keys()
+        algo_sk, algo_pk = get_algo_keys()
 
-    print(algo_txes)
-    print(eth_txes)
+        if not all(tx['platform'] in ["Algorand", "Ethereum"] for tx in txes):
+            print("Error: execute_txes got an invalid platform!")
+            print(tx['platform'] for tx in txes)
 
-    # TODO: 
-    #       1. Send tokens on the Algorand and eth testnets, appropriately
-    #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
-    #       2. Add all transactions to the TX table
+        algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
+        eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
 
-    # 1. Send tokens
-    acl = connect_to_algo()
-    w3 = connect_to_eth()
-    algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
-    eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
+        print(algo_txes)
+        print(eth_txes)
 
-    print("algo_tx_ids ", algo_tx_ids)
-    print("eth_tx_ids ", eth_tx_ids)
+        # TODO:
+        #       1. Send tokens on the Algorand and eth testnets, appropriately
+        #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
+        #       2. Add all transactions to the TX table
 
-    # 2. Add all transactions to the TX table
+        # 1. Send tokens
+        acl = connect_to_algo()
+        w3 = connect_to_eth()
+        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
 
-    pass
+        print("algo_tx_ids ", algo_tx_ids)
+        print("eth_tx_ids ", eth_tx_ids)
+
+        # 2. Add all transactions to the TX table
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
+
 
 
 """ End of Helper methods"""
