@@ -5,6 +5,12 @@ from algosdk.v2client import indexer
 from algosdk import account
 from algosdk.future import transaction
 
+from algosdk import algod
+from algosdk import mnemonic
+from algosdk import transaction
+from algosdk import encoding
+
+
 def connect_to_algo(connection_type=''):
     # Connect to Algorand node maintained by PureStake
     # algod_token = "B3SU4KcVKi94Jap2VXkK83xx38bsv95K5UZm2lab"
@@ -30,6 +36,7 @@ def send_tokens_algo(acl, sender_sk, txes):
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
     sp = acl.suggested_params()
+    acl.suggested_params
 
     sp.last = sp.first + 800 + 0  # Algorand requires sp.last - sp.first < 1000
 
