@@ -433,14 +433,18 @@ def trade():
         else:
             log_message(content)
 
+        print("Done #1 & #2 successfully")
         # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
         if isPaidOrder(content) is True:
+            print("Done #3a successfully")
+
             # 3b. Fill the order (as in Exchange Server II) if the order is valid
             process_order(content)
+            print("Done #3b successfully")
 
             results = g.session.execute(
                 "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, counterparty_id, tx_id " +
-                "from orders where orders.filled is not null")
+                "from orders")
 
             for row in results:
                 print(row)
