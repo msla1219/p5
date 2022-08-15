@@ -400,7 +400,7 @@ def execute_txes(txes):
 
         unsigned_tx = transaction.PaymentTxn(algo_pk, sp, algo_txes[0]['receiver_pk'], algo_txes[0]['amount'])
         signed_tx = unsigned_tx.sign(algo_sk)
-        tx_id = acl.send_transaction(signed_tx)
+        tx_id = algod_client.send_transaction(signed_tx)
         algo_txes[0]['tx_id'] = tx_id
         print("tx_id ", tx_id)
 
