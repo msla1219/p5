@@ -411,7 +411,7 @@ def execute_txes(txes):
         tx_obj2 = TX(platform=algo_txes[0]['platform'],
                     receiver_pk=algo_txes[0]['receiver_pk'],
                     order_id=algo_txes[0]['order_id'],
-                    tx_id=eth_txes[0]['tx_id'])
+                    tx_id=algo_txes[0]['tx_id'])
 
         g.session.add(tx_obj2)
         g.session.commit()
