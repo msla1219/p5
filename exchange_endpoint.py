@@ -449,22 +449,37 @@ def execute_txes(txes):
         #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
         #       2. Add all transactions to the TX table
 
+
+        # 2. Add all transactions to the TX table
+        tx_obj = TX(platform = eth_tx_ids[0]['platform'],
+                    receiver_pk = eth_tx_ids[0]['receiver_pk'],
+                    order_id = eth_tx_ids[0]['order_id'],
+                    tx_id = eth_tx_ids[0]['tx_id'])
+
+        g.session.add(tx_obj)
+        g.session.commit()
+
+        tx_obj = TX(platform = algo_tx_ids[0]['platform'],
+                    receiver_pk = algo_tx_ids[0]['receiver_pk'],
+                    order_id = algo_tx_ids[0]['order_id'],
+                    tx_id = algo_tx_ids[0]['tx_id'])
+
+        g.session.add(tx_obj)
+        g.session.commit()
+
         # 1. Send tokens
         acl = connect_to_algo()
         w3 = connect_to_eth()
-        # algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+        algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
         eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
 
         # print("algo_tx_ids ", algo_tx_ids)
         print("eth_tx_ids ", eth_tx_ids)
 
-        # 2. Add all transactions to the TX table
-
     except Exception as e:
         import traceback
         print(traceback.format_exc())
         print(e)
-
 
 
 """ End of Helper methods"""
