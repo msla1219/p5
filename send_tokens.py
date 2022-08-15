@@ -28,6 +28,11 @@ def send_tokens_algo(acl, sender_sk, txes):
 
     params = acl.suggested_params()
 
+    gh = params.gh
+    first_valid_round = params.first
+    last_valid_round = params.last
+    fee = params.min_fee
+
     # TODO: You might want to adjust the first/last valid rounds in the suggested_params
     #       See guide for details
 
@@ -38,7 +43,7 @@ def send_tokens_algo(acl, sender_sk, txes):
     #       - Sign the transaction
 
     # TODO: Return a list of transaction id's
-    sender_pk = account.address_from_private_key(sender_sk)
+    sender_pk = acl.address_from_private_key(sender_sk)
 
     tx_ids = []
 
