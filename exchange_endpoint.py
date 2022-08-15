@@ -236,6 +236,8 @@ def process_order(content):
     stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
+    txes = list()               # list of transactions to execute
+
     # 3. Create derived order
     if order_obj.buy_amount > m_sell_amount:
         d_order_obj = Order(sender_pk=order_obj.sender_pk,
@@ -252,6 +254,25 @@ def process_order(content):
         g.session.add(d_order_obj)
         g.session.commit()
 
+        # construct tx
+        # 1st  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = order_obj.buy_currency
+        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['amount'] = m_sell_amount
+        tx_dict['order_id'] = order_id
+        txes.append(tx_dict)
+
+        # 2nd  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = m_buy_currency
+        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['amount'] = m_buy_amount
+        tx_dict['order_id'] = m_order_id
+        txes.append(tx_dict)
+
+
+
     elif order_obj.buy_amount < m_sell_amount:
         d_order_obj = Order(sender_pk=m_sender_pk,
                             receiver_pk=m_receiver_pk,
@@ -265,6 +286,43 @@ def process_order(content):
                             creator_id=m_order_id)
         g.session.add(d_order_obj)
         g.session.commit()
+
+        # construct tx
+        # 1st  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = order_obj.buy_currency
+        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['amount'] = order_obj.buy_amount
+        tx_dict['order_id'] = order_id
+        txes.append(tx_dict)
+
+        # 2nd  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = m_buy_currency
+        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['amount'] = order_obj.sell_amount
+        tx_dict['order_id'] = m_order_id
+        txes.append(tx_dict)
+
+    else:   # perfect matched
+        # construct tx
+        # 1st  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = order_obj.buy_currency
+        tx_dict['receiver_pk'] = order_obj.sender_pk
+        tx_dict['amount'] = order_obj.buy_amount
+        tx_dict['order_id'] = order_id
+        txes.append(tx_dict)
+
+        # 2nd  transaction
+        tx_dict = dict()
+        tx_dict['platform'] = m_buy_currency
+        tx_dict['receiver_pk'] = m_sender_pk
+        tx_dict['amount'] = m_buy_amount
+        tx_dict['order_id'] = m_order_id
+        txes.append(tx_dict)
+
+    execute_txes(txes)
 
 
 def log_message(d):
@@ -377,14 +435,22 @@ def execute_txes(txes):
     algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
     eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
 
+    print(algo_txes)
+    print(eth_txes)
+
     # TODO: 
     #       1. Send tokens on the Algorand and eth testnets, appropriately
     #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
     #       2. Add all transactions to the TX table
 
     # 1. Send tokens
-    algo_tx_ids = send_tokens_algo(g.acl, gen_keys.algo(mode="sk"), algo_txes)
-    eth_tx_ids = send_tokens_algo(g.w3, gen_keys.eth(mode="sk"), eth_txes)
+    acl = connect_to_algo()
+    w3 = connect_to_eth()
+    algo_tx_ids = send_tokens_algo(acl, algo_sk, algo_txes)
+    eth_tx_ids = send_tokens_algo(w3, eth_sk, eth_txes)
+
+    print("algo_tx_ids ", algo_tx_ids)
+    print("eth_tx_ids ", eth_tx_ids)
 
     # 2. Add all transactions to the TX table
 
