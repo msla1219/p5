@@ -9,17 +9,14 @@ eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim ve
 algo_mnemonic = "half south great normal teach elephant tunnel grain monkey voice sentence express swear powder hawk valve grocery liar floor shoe come accuse nation abstract harsh"
 
 
-def eth(mode=""):
+def eth():
     try:
 
         w3 = Web3()
         w3.eth.account.enable_unaudited_hdwallet_features()
         acct = w3.eth.account.from_mnemonic(eth_mnemonic)
 
-        if mode == "":
-            return acct._address
-        elif mode == "sk":
-            return acct._private_key
+        return acct._address
 
     except Exception as e:
         print("Couldn't get Ethereum server")
@@ -39,13 +36,10 @@ def get_eth_keys():
         print("Couldn't get Ethereum server")
         print(e)
 
-def algoh(mode=""):
+def algoh():
     try:
 
-        if mode == "":
-            return mnemonic.to_public_key(algo_mnemonic)
-        elif mode == "sk":
-            return mnemonic.to_private_key(algo_mnemonic)
+        return mnemonic.to_public_key(algo_mnemonic)
 
     except Exception as e:
         print("Couldn't get Algorand server pk")
