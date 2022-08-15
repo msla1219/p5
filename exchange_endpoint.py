@@ -42,7 +42,6 @@ app = Flask(__name__)
 # mnemonic to generate the public key for the exchange server
 algo_mnemonic = "avocado coil energy gallery health brief crime peanut coyote brother coach bullet december limit oblige answer town bar neck provide ivory cousin custom abstract demise"
 eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
-eth_pk, algo_pk
 
 """ Pre-defined methods (do not need to change) """
 
@@ -226,7 +225,7 @@ def isPaidOrder(content):
             tx = w3.eth.get_transaction(content['payload']['tx_id'])
 
             if ((tx['from'] == content['payload']['sender_pk']) and
-                    (tx['to'] == eth_pk and
+                    (tx['to'] == content['payload']['receiver_pk']) and
                     (tx['value'] == content['payload']['sell_amount'])):
                 return True
             else:
@@ -245,7 +244,7 @@ def isPaidOrder(content):
             print("result: ", result[0])
 
             if ((result[0]['transaction']['snd'] == content['payload']['sender_pk']) and
-                (result[0]['transaction']['rcv'] == algo_pk) and
+                (result[0]['transaction']['rcv'] == content['payload']['receiver_pk']) and
                 (result[0]['transaction']['amt'] == content['payload']['sell_amount'])):
                 return True
             else:
