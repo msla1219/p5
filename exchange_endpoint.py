@@ -185,32 +185,24 @@ def process_order(content):
                       )
 
     # check up if it works well and get the order id
-    results = g.session.execute("select distinct id from orders where " +
-                                " sender_pk = '" + str(order_obj.sender_pk) + "'" +
+    results = g.session.execute("select distinct id from orders where orders.filled is null " +
+                                " and sender_pk = '" + str(order_obj.sender_pk) + "'" +
                                 " and receiver_pk = '" + str(order_obj.receiver_pk) + "'")
 
     order_id = results.first()['id']
     # print(" new order: ", order_id, order['buy_currency'], order['sell_currency'], order['buy_amount'], order['sell_amount'])
 
-    # Point to modify!!!
-
     # 2. Matching order
-    results = g.session.execute("select count(id) " +
-                                " from orders where orders.filled is null " +
-                                " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
-                                " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
-                                " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
-
-    if results.first()[0] == 0:
-        # print("::::no matching order::::")
-        return
-
     results = g.session.execute(
         "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, tx_id " +
         "from orders where orders.filled is null " +
         " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
         " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
         " and exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
+
+    if len(results) == 0:
+        # print("::::no matching order::::")
+        return
 
     for row in results:
         m_order_id = row['id']
@@ -230,11 +222,11 @@ def process_order(content):
     # update both the matching orders
     stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and orders.filled is null")
     stmt = stmt.bindparams(the_id=order_id, id=m_order_id, curr_date=datetime.now())
-    g.session.execute(stmt)  # where session has already been defined
+    g.session.execute(stmt)
 
     stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and orders.filled is null")
     stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
-    g.session.execute(stmt)  # where session has already been defined
+    g.session.execute(stmt)
 
     # 3. Create derived order
     if order_obj.buy_amount > m_sell_amount:
