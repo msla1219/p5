@@ -225,6 +225,7 @@ def isPaidOrder(content):
                     (tx['value'] == content['payload']['sell_amount'])):
                 return True
             else:
+                print("search eth tx_id result not found")
                 return False
 
         if content['payload']['platform'] == 'Algorand':
@@ -233,11 +234,14 @@ def isPaidOrder(content):
             result = myIndexer.search_transactions(txid=content['payload']['tx_id'], txn_type="pay")
 
             if len(result) == 0:
+                print("search algo tx_id result not found")
                 return False
 
-            if ((result[0]["transaction"]["snd"] == content['payload']['sender_pk']) and
-                    (result[0]["transaction"]["rcv"] == content['payload']['receiver_pk']) and
-                    (result[0]["transaction"]["amt"] == content['payload']['sell_amount'])):
+            print("result: ", result[0])
+
+            if ((result[0]['transaction']['snd'] == content['payload']['sender_pk']) and
+                (result[0]['transaction']['rcv'] == content['payload']['receiver_pk']) and
+                (result[0]['transaction']['amt'] == content['payload']['sell_amount'])):
                 return True
             else:
                 return False
