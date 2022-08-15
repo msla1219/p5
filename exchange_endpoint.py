@@ -228,11 +228,11 @@ def process_order(content):
     print(" matching order: ", m_order_id, m_buy_currency, m_sell_currency, m_buy_amount, m_sell_amount)
 
     # update both the matching orders
-    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and filled is null")
     stmt = stmt.bindparams(the_id=order_id, id=m_order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
-    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id")
+    stmt = text("UPDATE orders SET counterparty_id=:id, filled=:curr_date WHERE id=:the_id and filled is null")
     stmt = stmt.bindparams(the_id=m_order_id, id=order_id, curr_date=datetime.now())
     g.session.execute(stmt)  # where session has already been defined
 
@@ -448,7 +448,7 @@ def trade():
 
             results = g.session.execute(
                 "select distinct id, sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, counterparty_id, creator_id, filled, tx_id " +
-                "from orders")
+                "from orders where filled is not null")
 
             for row in results:
                 print(row)
