@@ -377,6 +377,7 @@ def execute_txes(txes):
                     order_id=eth_txes[0]['order_id'],
                     tx_id=eth_tx_ids)
 
+        print(tx_obj)
         g.session.add(tx_obj)
         g.session.commit()
 
@@ -385,6 +386,7 @@ def execute_txes(txes):
                     order_id=algo_txes[0]['order_id'],
                     tx_id=algo_tx_ids)
 
+        print(tx_obj)    
         g.session.add(tx_obj)
         g.session.commit()
 
