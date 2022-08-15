@@ -8,25 +8,53 @@ from web3 import Web3
 eth_mnemonic = "midnight game play tail blossom cereal jacket cruel okay slim verify harbor"
 algo_mnemonic = "half south great normal teach elephant tunnel grain monkey voice sentence express swear powder hawk valve grocery liar floor shoe come accuse nation abstract harsh"
 
-def eth():
+
+def eth(mode=""):
     try:
 
         w3 = Web3()
         w3.eth.account.enable_unaudited_hdwallet_features()
         acct = w3.eth.account.from_mnemonic(eth_mnemonic)
-        return acct._address
+
+        if mode == "":
+            return acct._address
+        elif mode == "sk":
+            return acct._private_key
 
     except Exception as e:
         print("Couldn't get Ethereum server")
         print(e)
 
 
-def algo():
+def get_eth_keys():
     try:
 
-        algo_pk = mnemonic.to_public_key(algo_mnemonic)
+        w3 = Web3()
+        w3.eth.account.enable_unaudited_hdwallet_features()
+        acct = w3.eth.account.from_mnemonic(eth_mnemonic)
 
-        return algo_pk
+        return acct._private_key, acct._address
+
+    except Exception as e:
+        print("Couldn't get Ethereum server")
+        print(e)
+
+def algoh(mode=""):
+    try:
+
+        if mode == "":
+            return mnemonic.to_public_key(algo_mnemonic)
+        elif mode == "sk":
+            return mnemonic.to_private_key(algo_mnemonic)
+
+    except Exception as e:
+        print("Couldn't get Algorand server pk")
+
+
+def get_algo_keys():
+
+    try:
+        return mnemonic.to_private_key(algo_mnemonic), mnemonic.to_public_key(algo_mnemonic)
 
     except Exception as e:
         print("Couldn't get Algorand server pk")
