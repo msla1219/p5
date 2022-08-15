@@ -123,8 +123,10 @@ def verify(content):
 
             # Check if signature is valid
             if recovered_pk == eth_pk:
+                print(content, "eth order verified")
                 result = True
             else:
+                print(content, "eth order not verified")
                 result = False
 
             return result  # bool value
@@ -135,6 +137,8 @@ def verify(content):
             payload = json.dumps(content['payload'])
 
             result = algosdk.util.verify_bytes(payload.encode('utf-8'), algo_sig, algo_pk)
+            print(content, result, "algo order verification result")
+
             return result  # bool value
 
     except Exception as e:
