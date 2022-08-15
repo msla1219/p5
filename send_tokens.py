@@ -56,7 +56,7 @@ def send_tokens_algo(acl, sender_sk, txes):
             # TODO: Send the transaction to the testnet
             tx_id = acl.send_transaction(signed_tx)
 
-            time.sleep(5)
+            time.sleep(10)
 
             txinfo = wait_for_confirmation_algo(acl, txid=tx_id)
             print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n")
@@ -76,7 +76,7 @@ def wait_for_confirmation_algo(client, txid):
     last_round = client.status().get('last-round')
     txinfo = client.pending_transaction_info(txid)
 
-    time.sleep(5)
+    time.sleep(10)
 
     while not (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0):
         print("Waiting for confirmation")
