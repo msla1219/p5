@@ -330,8 +330,8 @@ def process_order(content):
 
         print("case 3")
 
-    # print("execute_txes to begin")
-    # execute_txes(txes)
+    print("execute_txes to begin")
+    execute_txes(txes)
 
 
 def execute_txes(txes):
@@ -386,7 +386,7 @@ def execute_txes(txes):
                     order_id=algo_txes[0]['order_id'],
                     tx_id=algo_tx_ids)
 
-        print(tx_obj)    
+        print(tx_obj)
         g.session.add(tx_obj)
         g.session.commit()
 
