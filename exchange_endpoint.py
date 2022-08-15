@@ -292,6 +292,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = order_obj.sender_pk
         tx_dict['amount'] = order_obj.buy_amount
         tx_dict['order_id'] = order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         # 2nd  transaction
@@ -300,6 +301,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = m_sender_pk
         tx_dict['amount'] = order_obj.sell_amount
         tx_dict['order_id'] = m_order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         print("case 2")
@@ -312,6 +314,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = order_obj.sender_pk
         tx_dict['amount'] = order_obj.buy_amount
         tx_dict['order_id'] = order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         # 2nd  transaction
@@ -320,6 +323,7 @@ def process_order(content):
         tx_dict['receiver_pk'] = m_sender_pk
         tx_dict['amount'] = m_buy_amount
         tx_dict['order_id'] = m_order_id
+        tx_dict['tx_id'] = ""
         txes.append(tx_dict)
 
         print("case 3")
