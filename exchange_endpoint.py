@@ -242,7 +242,7 @@ def process_order(content):
                             receiver_pk=order_obj.receiver_pk,
                             buy_currency=order_obj.buy_currency,
                             sell_currency=order_obj.sell_currency,
-                            buy_amount=math.ceil(order_obj.buy_amount - m_sell_amount),
+                            buy_amount=(order_obj.buy_amount - m_sell_amount),
                             sell_amount=order_obj.sell_amount - (
                                     (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
                             exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - (
@@ -257,7 +257,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.ceil(m_sell_amount)
+        tx_dict['amount'] = (m_sell_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -266,7 +266,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] = math.ceil(m_buy_amount)
+        tx_dict['amount'] = (m_buy_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -276,7 +276,7 @@ def process_order(content):
                             receiver_pk=m_receiver_pk,
                             buy_currency=m_buy_currency,
                             sell_currency=m_sell_currency,
-                            buy_amount=math.ceil(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount),
+                            buy_amount=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount),
                             sell_amount=m_sell_amount - order_obj.buy_amount,
                             exchange_rate=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount) / (
                                     m_sell_amount - order_obj.buy_amount),
@@ -290,7 +290,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.ceil(order_obj.buy_amount)
+        tx_dict['amount'] = (order_obj.buy_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -299,7 +299,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] = math.ceil(order_obj.sell_amount)
+        tx_dict['amount'] = (order_obj.sell_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -310,7 +310,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = math.ceil(order_obj.buy_amount)
+        tx_dict['amount'] = (order_obj.buy_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
@@ -319,7 +319,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = m_buy_currency
         tx_dict['receiver_pk'] = m_receiver_pk
-        tx_dict['amount'] =  math.ceil(m_buy_amount)
+        tx_dict['amount'] =  (m_buy_amount)
         tx_dict['order_id'] = m_order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
