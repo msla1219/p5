@@ -242,11 +242,11 @@ def process_order(content):
                             receiver_pk=order_obj.receiver_pk,
                             buy_currency=order_obj.buy_currency,
                             sell_currency=order_obj.sell_currency,
-                            buy_amount=(order_obj.buy_amount - m_sell_amount),
+                            buy_amount= order_obj.buy_amount - math.ceil(m_sell_amount),
                             sell_amount=order_obj.sell_amount - (
-                                    (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
-                            exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - (
-                                    order_obj.sell_amount / order_obj.buy_amount * m_sell_amount)),
+                                    (order_obj.sell_amount / order_obj.buy_amount) * math.ceil(m_sell_amount)),
+                            exchange_rate=(order_obj.buy_amount - math.ceil(m_sell_amount)) / (order_obj.sell_amount - (
+                                    order_obj.sell_amount / order_obj.buy_amount * math.ceil(m_sell_amount))),
                             tx_id=order_obj.tx_id,
                             creator_id=order_id)
         g.session.add(d_order_obj)
@@ -257,7 +257,7 @@ def process_order(content):
         tx_dict = dict()
         tx_dict['platform'] = order_obj.buy_currency
         tx_dict['receiver_pk'] = order_obj.receiver_pk
-        tx_dict['amount'] = (m_sell_amount)
+        tx_dict['amount'] = math.ceil(m_sell_amount)
         tx_dict['order_id'] = order_id
         tx_dict['tx_id'] = ""
         txes.append(tx_dict)
