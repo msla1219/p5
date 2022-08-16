@@ -621,8 +621,8 @@ def order_book():
             item['sell_currency'] = row['sell_currency']
             item['buy_amount'] = row['buy_amount']
             item['sell_amount'] = row['sell_amount']
-            item['child'] = row['child']
             item['creator_id'] = row['creator_id']
+            item['tx_id'] = row['tx_id']
 
             result_list.append(item)
 
