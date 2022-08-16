@@ -609,7 +609,7 @@ def order_book():
 
     try:
         results = g.session.execute(
-            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, child, tx_id " +
+            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, creator_id, tx_id " +
             "from orders ")
 
         result_list = list()
@@ -622,7 +622,7 @@ def order_book():
             item['buy_amount'] = row['buy_amount']
             item['sell_amount'] = row['sell_amount']
             item['child'] = row['child']
-            item['tx_id'] = row['tx_id']
+            item['creator_id'] = row['creator_id']
 
             result_list.append(item)
 
