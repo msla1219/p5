@@ -198,7 +198,7 @@ def process_order(content):
                                 " from orders where orders.filled is null " +
                                 " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
                                 " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
-                                " and orders.buy_amount/orders.sell_amount <= " + str(order_obj.sell_amount / order_obj.buy_amount))
+                                " and orders.exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
     if results.first()[0] == 0:
         # print("::::no matching order::::")
@@ -209,7 +209,7 @@ def process_order(content):
         "from orders where orders.filled is null " +
         " and orders.sell_currency = '" + order_obj.buy_currency + "'" +
         " and orders.buy_currency = '" + order_obj.sell_currency + "'" +
-        " and orders.buy_amount/orders.sell_amount <= " + str(order_obj.sell_amount / order_obj.buy_amount))
+        " and orders.exchange_rate <= " + str(order_obj.sell_amount / order_obj.buy_amount))
 
     for row in results:
         m_order_id = row['id']
@@ -604,12 +604,11 @@ def trade():
 
 @app.route('/order_book')
 def order_book():
-    fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk",
-              "sender_pk"]
+    # fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk", "sender_pk"]
 
     try:
         results = g.session.execute(
-            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, creator_id, tx_id " +
+            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, signature, tx_id  " +
             "from orders ")
 
         result_list = list()
@@ -621,7 +620,7 @@ def order_book():
             item['sell_currency'] = row['sell_currency']
             item['buy_amount'] = row['buy_amount']
             item['sell_amount'] = row['sell_amount']
-            item['creator_id'] = row['creator_id']
+            item['signature'] = row['signature']
             item['tx_id'] = row['tx_id']
 
             result_list.append(item)
