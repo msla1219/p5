@@ -609,7 +609,7 @@ def order_book():
 
     try:
         results = g.session.execute(
-            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, signature, tx_id " +
+            "select sender_pk, receiver_pk, buy_currency, sell_currency, buy_amount, sell_amount, child, tx_id " +
             "from orders ")
 
         result_list = list()
