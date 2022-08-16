@@ -242,7 +242,7 @@ def process_order(content):
                             receiver_pk=order_obj.receiver_pk,
                             buy_currency=order_obj.buy_currency,
                             sell_currency=order_obj.sell_currency,
-                            buy_amount=(order_obj.buy_amount - m_sell_amount),
+                            buy_amount=math.ceil(order_obj.buy_amount - m_sell_amount),
                             sell_amount=order_obj.sell_amount - (
                                     (order_obj.sell_amount / order_obj.buy_amount) * m_sell_amount),
                             exchange_rate=(order_obj.buy_amount - m_sell_amount) / (order_obj.sell_amount - (
@@ -276,7 +276,7 @@ def process_order(content):
                             receiver_pk=m_receiver_pk,
                             buy_currency=m_buy_currency,
                             sell_currency=m_sell_currency,
-                            buy_amount=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount),
+                            buy_amount=math.ceil(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount),
                             sell_amount=m_sell_amount - order_obj.buy_amount,
                             exchange_rate=(m_buy_amount - (m_buy_amount / m_sell_amount) * order_obj.buy_amount) / (
                                     m_sell_amount - order_obj.buy_amount),
@@ -458,7 +458,7 @@ def get_algo_keys():
 def get_eth_keys(filename="eth_mnemonic.txt"):
     w3 = Web3()
 
-    # TODO: Generate or read (using the mnemonic secret) 
+    # TODO: Generate or read (using the mnemonic secret)
 
     w3.eth.account.enable_unaudited_hdwallet_features()
     acct = w3.eth.account.from_mnemonic(eth_mnemonic)
@@ -508,7 +508,7 @@ def isPaidOrder(content):
 
 
 def fill_order(order, txes=[]):
-    # TODO: 
+    # TODO:
     # Match orders (same as Exchange Server II)
     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
     # Make sure that you end up executing all resulting transactions!
